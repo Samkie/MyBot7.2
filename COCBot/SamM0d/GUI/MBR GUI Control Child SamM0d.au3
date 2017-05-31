@@ -1,0 +1,502 @@
+
+Func chkMyTroopOrder()
+
+	Local $tempOrder[19]
+	Local $tempSwap
+	Local $tempSwapTo
+	Local $TotalCapacity = 0
+	For $i = 0 To 18
+		$tempOrder[$i] = GUICtrlRead(Eval("cmbMy" & $MyTroops[$i][0] & "Order"))
+	Next
+	For $i = 0 To 18
+		If $tempOrder[$i] <> $MyTroops[$i][1] Then
+			For $j = 0 To 18
+				If $MyTroops[$j][1] = $tempOrder[$i] Then
+					$tempOrder[$j] = Number($MyTroops[$i][1])
+					ExitLoop
+				EndIf
+			Next
+			ExitLoop
+		EndIf
+	Next
+	For $i = 0 To 18
+		$MyTroops[$i][1] = Number($tempOrder[$i])
+		_GUICtrlComboBox_SetCurSel(Eval("cmbMy" & $MyTroops[$i][0] & "Order"), $MyTroops[$i][1]-1)
+		$TotalCapacity += GUICtrlRead(Eval("txtMy" & $MyTroops[$i][0])) * $MyTroops[$i][2]
+	Next
+
+	If GUICtrlRead($chkMyTroopsOrder) = $GUI_CHECKED Then
+		$ichkMyTroopsOrder = 1
+	Else
+		$ichkMyTroopsOrder = 0
+	EndIf
+	;SetLog("$ichkMyTroopsOrder: " & $ichkMyTroopsOrder)
+	$g_iTrainArmyFullTroopPct = Int(GUICtrlRead($g_hTxtFullTroop))
+	GUICtrlSetData($lblTotalCapacityOfMyTroops,GetTranslatedFileIni("sam m0d", 76, "Total") & ": " & $TotalCapacity & "/" & Int(($g_iTotalCampSpace * $g_iTrainArmyFullTroopPct) / 100))
+	If $TotalCapacity > (($g_iTotalCampSpace * $g_iTrainArmyFullTroopPct) / 100) Then
+		GUICtrlSetColor($lblTotalCapacityOfMyTroops,$COLOR_RED)
+		GUICtrlSetData($idProgressbar,100)
+		_SendMessage(GUICtrlGetHandle($idProgressbar), $PBM_SETSTATE, 2) ; red
+	Else
+		GUICtrlSetColor($lblTotalCapacityOfMyTroops,$COLOR_BLACK)
+		GUICtrlSetData($idProgressbar, Int(($TotalCapacity / (($g_iTotalCampSpace * $g_iTrainArmyFullTroopPct) / 100)) * 100))
+		_SendMessage(GUICtrlGetHandle($idProgressbar), $PBM_SETSTATE, 1) ; green
+	EndIf
+EndFunc
+
+Func chkDisablePretrainTroops()
+	If GUICtrlRead($chkDisablePretrainTroops) = $GUI_CHECKED Then
+		$ichkDisablePretrainTroops = 1
+	Else
+		$ichkDisablePretrainTroops = 0
+	EndIf
+EndFunc
+
+Func chkCustomTrain()
+	If GUICtrlRead($chkCustomTrain) = $GUI_CHECKED Then
+		$ichkCustomTrain = 1
+	Else
+		$ichkCustomTrain = 0
+	EndIf
+EndFunc
+
+Func cmbTroopSetting()
+	For $i = 0 To UBound($MyTroops) - 1
+		IniWriteS($g_sProfileConfigPath, "MyTroops", $MyTroops[$i][0] & $icmbTroopSetting, GUICtrlRead(Eval("txtMy" & $MyTroops[$i][0])))
+		;SetLog("Q: " & GUICtrlRead(Eval("txtMy" & $MyTroops[$i][0])))
+		IniWriteS($g_sProfileConfigPath, "MyTroops", $MyTroops[$i][0] & "Order" & $icmbTroopSetting, GUICtrlRead(Eval("cmbMy"& $MyTroops[$i][0] & "Order")))
+	Next
+	For $i = 0 To UBound($MySpells) - 1
+		If GUICtrlRead(Eval("chkPre" & $MySpells[$i][0])) = $GUI_CHECKED Then
+			IniWriteS($g_sProfileConfigPath, "MySpells", $MySpells[$i][0] & $icmbTroopSetting, 1)
+		Else
+			IniWriteS($g_sProfileConfigPath, "MySpells", $MySpells[$i][0] & $icmbTroopSetting, 0)
+		EndIf
+	Next
+
+	IniWriteS($g_sProfileConfigPath, "Spells", "LightningSpell" & $icmbTroopSetting, GUICtrlRead($txtNumLightningSpell))
+	IniWriteS($g_sProfileConfigPath, "Spells", "RageSpell" & $icmbTroopSetting, GUICtrlRead($txtNumRageSpell))
+	IniWriteS($g_sProfileConfigPath, "Spells", "HealSpell" & $icmbTroopSetting, GUICtrlRead($txtNumHealSpell))
+	IniWriteS($g_sProfileConfigPath, "Spells", "JumpSpell" & $icmbTroopSetting, GUICtrlRead($txtNumJumpSpell))
+	IniWriteS($g_sProfileConfigPath, "Spells", "FreezeSpell" & $icmbTroopSetting, GUICtrlRead($txtNumFreezeSpell))
+	IniWriteS($g_sProfileConfigPath, "Spells", "CloneSpell" & $icmbTroopSetting, GUICtrlRead($txtNumCloneSpell))
+	IniWriteS($g_sProfileConfigPath, "Spells", "PoisonSpell" & $icmbTroopSetting, GUICtrlRead($txtNumPoisonSpell))
+	IniWriteS($g_sProfileConfigPath, "Spells", "EarthSpell" & $icmbTroopSetting, GUICtrlRead($txtNumEarthSpell))
+	IniWriteS($g_sProfileConfigPath, "Spells", "HasteSpell" & $icmbTroopSetting, GUICtrlRead($txtNumHasteSpell))
+	IniWriteS($g_sProfileConfigPath, "Spells", "SkeletonSpell" & $icmbTroopSetting, GUICtrlRead($txtNumSkeletonSpell))
+
+
+	$icmbTroopSetting = _GUICtrlComboBox_GetCurSel($cmbTroopSetting)
+
+	$ichkMyTroopsOrder = IniRead($g_sProfileConfigPath, "MyTroops", "Order" & $icmbTroopSetting, "0")
+	For $i = 0 To UBound($MyTroops) - 1
+		$MyTroops[$i][3] =  IniRead($g_sProfileConfigPath, "MyTroops", $MyTroops[$i][0] & $icmbTroopSetting, "0")
+		$MyTroops[$i][1] =  Number(IniRead($g_sProfileConfigPath, "MyTroops", $MyTroops[$i][0] & "Order" & $icmbTroopSetting, $i + 1))
+	Next
+
+	For $i = 0 To UBound($MySpells) - 1
+		Local $tempPreSpell
+		IniReadS($tempPreSpell, $g_sProfileConfigPath, "MySpells", $MySpells[$i][0] & $icmbTroopSetting, "0", "Int")
+		Assign("ichkPre" & $MySpells[$i][0], $tempPreSpell)
+		;IniReadS($MySpells[$i][1], $g_sProfileConfigPath, "MyTroops", $MySpells[$i][0] & "Order", $i + 1)
+	Next
+	IniReadS($iLightningSpellComp, $g_sProfileConfigPath, "Spells", "LightningSpell" & $icmbTroopSetting, "0","Int")
+	IniReadS($iRageSpellComp, $g_sProfileConfigPath, "Spells", "RageSpell" & $icmbTroopSetting, "0","Int")
+	IniReadS($iHealSpellComp, $g_sProfileConfigPath, "Spells", "HealSpell" & $icmbTroopSetting, "0","Int")
+	IniReadS($iJumpSpellComp, $g_sProfileConfigPath, "Spells", "JumpSpell" & $icmbTroopSetting, "0","Int")
+	IniReadS($iFreezeSpellComp, $g_sProfileConfigPath, "Spells", "FreezeSpell" & $icmbTroopSetting, "0","Int")
+	IniReadS($iCloneSpellComp, $g_sProfileConfigPath, "Spells", "CloneSpell" & $icmbTroopSetting, "0", "Int")
+	IniReadS($iPoisonSpellComp, $g_sProfileConfigPath, "Spells", "PoisonSpell" & $icmbTroopSetting, "0","Int")
+	IniReadS($iHasteSpellComp, $g_sProfileConfigPath, "Spells", "HasteSpell" & $icmbTroopSetting, "0","Int")
+	IniReadS($iEarthSpellComp, $g_sProfileConfigPath, "Spells", "EarthSpell" & $icmbTroopSetting, "0","Int")
+	IniReadS($iSkeletonSpellComp, $g_sProfileConfigPath, "Spells", "SkeletonSpell" & $icmbTroopSetting, "0", "Int")
+
+
+	For $i = 0 To UBound($MyTroops)-1
+		GUICtrlSetData(Eval("txtMy" & $MyTroops[$i][0]), $MyTroops[$i][3])
+		_GUICtrlComboBox_SetCurSel(Eval("cmbMy" & $MyTroops[$i][0] & "Order"), $MyTroops[$i][1]-1)
+	Next
+	For $i = 0 To UBound($MySpells)-1
+		If Eval("ichkPre" & $MySpells[$i][0]) = 1 Then
+			GUICtrlSetState(Eval("chkPre" & $MySpells[$i][0]), $GUI_CHECKED)
+		Else
+			GUICtrlSetState(Eval("chkPre" & $MySpells[$i][0]), $GUI_UNCHECKED)
+		EndIf
+	Next
+	GUICtrlSetData($txtNumLightningSpell, $iLightningSpellComp)
+	GUICtrlSetData($txtNumRageSpell, $iRageSpellComp)
+	GUICtrlSetData($txtNumHealSpell, $iHealSpellComp)
+	GUICtrlSetData($txtNumJumpSpell, $iJumpSpellComp)
+	GUICtrlSetData($txtNumFreezeSpell, $iFreezeSpellComp)
+	GUICtrlSetData($txtNumCloneSpell, $iCloneSpellComp)
+	GUICtrlSetData($txtNumPoisonSpell, $iPoisonSpellComp)
+	GUICtrlSetData($txtNumEarthSpell, $iEarthSpellComp)
+	GUICtrlSetData($txtNumHasteSpell, $iHasteSpellComp)
+	GUICtrlSetData($txtNumSkeletonSpell, $iSkeletonSpellComp)
+
+	chkMyTroopOrder()
+	lblMyTotalCountSpell()
+EndFunc
+
+Func cmbMyQuickTrain()
+	$icmbMyQuickTrain = _GUICtrlComboBox_GetCurSel($cmbMyQuickTrain)
+EndFunc
+
+Func btnResetTroops()
+	For $i = 0 To 18
+		GUICtrlSetData(Eval("txtMy" & $MyTroops[$i][0]),"0")
+		$MyTroops[$i][3] = 0
+	Next
+	chkMyTroopOrder()
+EndFunc
+
+Func btnResetOrder()
+	For $i = 0 To 18
+		_GUICtrlComboBox_SetCurSel(Eval("cmbMy" & $MyTroops[$i][0] & "Order"), $i)
+		$MyTroops[$i][1] = $i + 1
+	Next
+	chkMyTroopOrder()
+EndFunc
+
+Func chkWait4CC()
+	If GUICtrlRead($chkWait4CC) = $GUI_CHECKED Then
+		$ichkWait4CC = 1
+		GUICtrlSetState($txtCCStrength, $GUI_ENABLE)
+	Else
+		$ichkWait4CC = 0
+		GUICtrlSetState($txtCCStrength, $GUI_DISABLE)
+	EndIf
+	$CCStrength = GUICtrlRead($txtCCStrength)
+EndFunc
+
+Func chkUnitFactor()
+	If GUICtrlRead($chkUnitFactor) = $GUI_CHECKED Then
+		$ichkUnitFactor = 1
+		GUICtrlSetState($txtUnitFactor, $GUI_ENABLE)
+	Else
+		$ichkUnitFactor = 0
+		GUICtrlSetState($txtUnitFactor, $GUI_DISABLE)
+	EndIf
+	$itxtUnitFactor = GUICtrlRead($txtUnitFactor)
+EndFunc
+
+Func chkWaveFactor()
+	If GUICtrlRead($chkWaveFactor) = $GUI_CHECKED Then
+		$ichkWaveFactor = 1
+		GUICtrlSetState($txtWaveFactor, $GUI_ENABLE)
+	Else
+		$ichkWaveFactor = 0
+		GUICtrlSetState($txtWaveFactor, $GUI_DISABLE)
+	EndIf
+	$itxtWaveFactor = GUICtrlRead($txtWaveFactor)
+EndFunc
+
+Func chkDBCollectorsNearRedline()
+	If GUICtrlRead($chkDBCollectorsNearRedline) = $GUI_CHECKED Then
+		$ichkDBCollectorsNearRedline = 1
+	Else
+		$ichkDBCollectorsNearRedline = 0
+	EndIf
+EndFunc
+
+Func cmbRedlineTiles()
+	$icmbRedlineTiles = _GUICtrlComboBox_GetCurSel($cmbRedlineTiles)
+EndFunc
+
+Func chkEnableDeleteExcessTroops()
+	If GUICtrlRead($chkEnableDeleteExcessTroops) = $GUI_CHECKED Then
+		$ichkEnableDeleteExcessTroops = 1
+	Else
+		$ichkEnableDeleteExcessTroops = 0
+	EndIf
+EndFunc
+
+Func chkAutoDock()
+	If GUICtrlRead($chkAutoDock) = $GUI_CHECKED Then
+		$ichkAutoDock = 1
+	Else
+		$ichkAutoDock = 0
+	EndIf
+EndFunc
+
+Func lblMyTotalCountSpell()
+	_GUI_Value_STATE("HIDE", $groupListMySpells)
+	; calculate $iTotalTrainSpaceSpell value
+	$iMyTotalTrainSpaceSpell = (GUICtrlRead($txtNumLightningSpell) * 2) + (GUICtrlRead($txtNumHealSpell) * 2) + (GUICtrlRead($txtNumRageSpell) * 2) + (GUICtrlRead($txtNumJumpSpell) * 2) + _
+			(GUICtrlRead($txtNumFreezeSpell) * 2) + (GUICtrlRead($txtNumCloneSpell) * 4) + GUICtrlRead($txtNumPoisonSpell) + GUICtrlRead($txtNumHasteSpell) + GUICtrlRead($txtNumEarthSpell) + GUICtrlRead($txtNumSkeletonSpell)
+
+	_GUICtrlComboBox_SetCurSel($g_hTxtTotalCountSpell, _GUICtrlComboBox_GetCurSel($txtTotalCountSpell2))
+
+	If $iMyTotalTrainSpaceSpell < GUICtrlRead($txtTotalCountSpell2) + 1 Then
+		GUICtrlSetBkColor($txtNumLightningSpell, $COLOR_MONEYGREEN)
+		GUICtrlSetBkColor($txtNumHealSpell, $COLOR_MONEYGREEN)
+		GUICtrlSetBkColor($txtNumRageSpell, $COLOR_MONEYGREEN)
+		GUICtrlSetBkColor($txtNumJumpSpell, $COLOR_MONEYGREEN)
+		GUICtrlSetBkColor($txtNumFreezeSpell, $COLOR_MONEYGREEN)
+		GUICtrlSetBkColor($txtNumCloneSpell, $COLOR_MONEYGREEN)
+		GUICtrlSetBkColor($txtNumPoisonSpell, $COLOR_MONEYGREEN)
+		GUICtrlSetBkColor($txtNumEarthSpell, $COLOR_MONEYGREEN)
+		GUICtrlSetBkColor($txtNumHasteSpell, $COLOR_MONEYGREEN)
+		GUICtrlSetBkColor($txtNumSkeletonSpell, $COLOR_MONEYGREEN)
+	Else
+		GUICtrlSetBkColor($txtNumLightningSpell, $COLOR_RED)
+		GUICtrlSetBkColor($txtNumHealSpell, $COLOR_RED)
+		GUICtrlSetBkColor($txtNumRageSpell, $COLOR_RED)
+		GUICtrlSetBkColor($txtNumFreezeSpell, $COLOR_RED)
+		GUICtrlSetBkColor($txtNumCloneSpell, $COLOR_RED)
+		GUICtrlSetBkColor($txtNumJumpSpell, $COLOR_RED)
+		GUICtrlSetBkColor($txtNumPoisonSpell, $COLOR_RED)
+		GUICtrlSetBkColor($txtNumEarthSpell, $COLOR_RED)
+		GUICtrlSetBkColor($txtNumHasteSpell, $COLOR_RED)
+		GUICtrlSetBkColor($txtNumSkeletonSpell, $COLOR_RED)
+	EndIf
+	$g_iTownHallLevel = Int($g_iTownHallLevel)
+	If $g_iTownHallLevel > 4 Or $g_iTownHallLevel = 0 Then
+		_GUI_Value_STATE("SHOW", $groupMyLightning)
+	Else
+		GUICtrlSetData($txtNumLightningSpell, 0)
+		GUICtrlSetData($txtNumRageSpell, 0)
+		GUICtrlSetData($txtNumHealSpell, 0)
+		GUICtrlSetData($txtNumJumpSpell, 0)
+		GUICtrlSetData($txtNumFreezeSpell, 0)
+		GUICtrlSetData($txtNumCloneSpell, 0)
+		GUICtrlSetData($txtNumPoisonSpell, 0)
+		GUICtrlSetData($txtNumEarthSpell, 0)
+		GUICtrlSetData($txtNumHasteSpell, 0)
+		GUICtrlSetData($txtNumSkeletonSpell, 0)
+		GUICtrlSetData($txtTotalCountSpell2, 0)
+	EndIf
+	If $g_iTownHallLevel > 5 Or $g_iTownHallLevel = 0 Then
+		_GUI_Value_STATE("SHOW", $groupMyHeal)
+	Else
+		GUICtrlSetData($txtNumRageSpell, 0)
+		GUICtrlSetData($txtNumJumpSpell, 0)
+		GUICtrlSetData($txtNumFreezeSpell, 0)
+		GUICtrlSetData($txtNumCloneSpell, 0)
+		GUICtrlSetData($txtNumPoisonSpell, 0)
+		GUICtrlSetData($txtNumEarthSpell, 0)
+		GUICtrlSetData($txtNumHasteSpell, 0)
+		GUICtrlSetData($txtNumSkeletonSpell, 0)
+	EndIf
+	If $g_iTownHallLevel > 6 Or $g_iTownHallLevel = 0 Then
+		_GUI_Value_STATE("SHOW", $groupMyRage)
+	Else
+		GUICtrlSetData($txtNumJumpSpell, 0)
+		GUICtrlSetData($txtNumFreezeSpell, 0)
+		GUICtrlSetData($txtNumCloneSpell, 0)
+		GUICtrlSetData($txtNumPoisonSpell, 0)
+		GUICtrlSetData($txtNumEarthSpell, 0)
+		GUICtrlSetData($txtNumHasteSpell, 0)
+		GUICtrlSetData($txtNumSkeletonSpell, 0)
+	EndIf
+	If $g_iTownHallLevel > 7 Or $g_iTownHallLevel = 0 Then
+		_GUI_Value_STATE("SHOW", $groupMyPoison)
+		_GUI_Value_STATE("SHOW", $groupMyEarthquake)
+	Else
+		GUICtrlSetData($txtNumJumpSpell, 0)
+		GUICtrlSetData($txtNumFreezeSpell, 0)
+		GUICtrlSetData($txtNumCloneSpell, 0)
+		GUICtrlSetData($txtNumHasteSpell, 0)
+		GUICtrlSetData($txtNumSkeletonSpell, 0)
+	EndIf
+	If $g_iTownHallLevel > 8 Or $g_iTownHallLevel = 0 Then
+		_GUI_Value_STATE("SHOW", $groupMyJumpSpell)
+		_GUI_Value_STATE("SHOW", $groupMyFreeze)
+		_GUI_Value_STATE("SHOW", $groupMyHaste)
+		_GUI_Value_STATE("SHOW", $groupMySkeleton)
+	Else
+		GUICtrlSetData($txtNumCloneSpell, 0)
+	EndIf
+	If $g_iTownHallLevel > 9 Or $g_iTownHallLevel = 0 Then
+		_GUI_Value_STATE("SHOW", $groupMyClone)
+	EndIf
+EndFunc   ;==>lblTotalCountSpell
+
+Func chkCheck4CC()
+	If GUICtrlRead($chkCheck4CC) = $GUI_CHECKED Then
+		$ichkCheck4CC = 1
+		GUICtrlSetState($txtCheck4CCWaitTime, $GUI_ENABLE)
+	Else
+		$ichkCheck4CC = 0
+		GUICtrlSetState($txtCheck4CCWaitTime, $GUI_DISABLE)
+	EndIf
+	$itxtCheck4CCWaitTime = GUICtrlRead($txtCheck4CCWaitTime)
+	If $itxtCheck4CCWaitTime = 0 Then
+		$itxtCheck4CCWaitTime = 7
+		GUICtrlSetData($txtCheck4CCWaitTime,$itxtCheck4CCWaitTime)
+	EndIf
+EndFunc
+
+Func txtStickToTrainWindow()
+	$itxtStickToTrainWindow = GUICtrlRead($txtStickToTrainWindow)
+	If $itxtStickToTrainWindow > 5 Then
+		$itxtStickToTrainWindow = 5
+		GUICtrlSetData($txtStickToTrainWindow,5)
+	EndIf
+EndFunc
+
+Func chkIncreaseGlobalDelay()
+	If GUICtrlRead($chkIncreaseGlobalDelay) = $GUI_CHECKED Then
+		$ichkIncreaseGlobalDelay = 1
+		GUICtrlSetState($txtIncreaseGlobalDelay, $GUI_ENABLE)
+	Else
+		$ichkIncreaseGlobalDelay = 0
+		GUICtrlSetState($txtIncreaseGlobalDelay, $GUI_DISABLE)
+	EndIf
+	$itxtIncreaseGlobalDelay = GUICtrlRead($txtIncreaseGlobalDelay)
+EndFunc
+
+;~ Func cmbCoCVersion()
+;~ 	Local $iSection = GUICtrlRead($cmbCoCVersion)
+;~ 	$AndroidGamePackage = IniRead(@ScriptDir & "\COCBot\COCVersions.ini",$iSection,"1PackageName",$AndroidGamePackage)
+;~ 	$AndroidGameClass = IniRead(@ScriptDir & "\COCBot\COCVersions.ini",$iSection,"2ActivityName",$AndroidGameClass)
+;~ EndFunc
+
+Func cmbZapMethod()
+	If GUICtrlRead($chkUseSamM0dZap) = $GUI_CHECKED Then
+		$ichkUseSamM0dZap = 1
+	Else
+		$ichkUseSamM0dZap = 0
+	EndIf
+EndFunc   ;==>chkSmartLightSpell
+
+Func chkEnableHLFClickSetlog()
+	If GUICtrlRead($chkEnableHLFClickSetlog) = $GUI_CHECKED Then
+		$EnableHMLSetLog = 1
+	Else
+		$EnableHMLSetLog = 0
+	EndIf
+	SetLog("HLFClickSetlog " & ($EnableHMLSetLog = 1 ? "enabled" : "disabled"))
+EndFunc   ;==>chkEnableHLFClickSetlog
+
+Func sldHLFClickDelayTime()
+	$isldHLFClickDelayTime = GUICtrlRead($sldHLFClickDelayTime)
+	GUICtrlSetData($lblHLFClickDelayTime, $isldHLFClickDelayTime & " ms")
+EndFunc   ;==>sldHLFClickDelayTime
+
+Func chkEnableHLFClick()
+	If GUICtrlRead($chkEnableHLFClick) = $GUI_CHECKED Then
+		GUICtrlSetState($sldHLFClickDelayTime, $GUI_ENABLE)
+		$ichkEnableHLFClick = 1
+	Else
+		GUICtrlSetState($sldHLFClickDelayTime, $GUI_DISABLE)
+		$ichkEnableHLFClick = 0
+	EndIf
+EndFunc
+
+Func chkSmartUpdateWall()
+	If GUICtrlRead($chkSmartUpdateWall) = $GUI_CHECKED Then
+		GUICtrlSetState($txtClickWallDelay, $GUI_ENABLE)
+		If $g_iDebugSetlog = 1 Then SetLog("BaseNode: " & $aBaseNode[0] & "," & $aBaseNode[1])
+		If $g_iDebugSetlog = 1 Then SetLog("LastWall: " & $aLastWall[0] & "," & $aLastWall[1])
+		If $g_iDebugSetlog = 1 Then SetLog("FaceDirection: " & $iFaceDirection)
+	Else
+		GUICtrlSetState($txtClickWallDelay, $GUI_DISABLE)
+		; reset all data
+		$aLastWall[0] = -1
+		$aLastWall[1] = -1
+		$aBaseNode[0] = -1
+		$aBaseNode[1] = -1
+		$iFaceDirection = 1
+	EndIf
+EndFunc
+
+Func chkDropCCFirst()
+	If GUICtrlRead($chkDropCCFirst) = $GUI_CHECKED Then
+		$ichkDropCCFirst = 1
+	Else
+		$ichkDropCCFirst = 0
+	EndIf
+EndFunc
+
+Func chkEnableCustomOCR4CCRequest()
+	If GUICtrlRead($chkEnableCustomOCR4CCRequest) = $GUI_CHECKED Then
+		$ichkEnableCustomOCR4CCRequest = 1
+	Else
+		$ichkEnableCustomOCR4CCRequest = 0
+	EndIf
+EndFunc
+
+Func chkDebugMyOcr()
+	If GUICtrlRead($chkDebugMyOcr) = $GUI_CHECKED Then
+		$MyOcrDebug = 1
+	Else
+		$MyOcrDebug = 0
+	EndIf
+EndFunc
+
+Func chkDebugSamM0d()
+	If GUICtrlRead($chkDebugSamM0d) = $GUI_CHECKED Then
+		$iSamM0dDebug = 1
+	Else
+		$iSamM0dDebug = 0
+	EndIf
+EndFunc
+
+; CSV Deployment Speed Mod
+Func sldSelectedSpeedDB()
+	$isldSelectedCSVSpeed[$DB] = GUICtrlRead($sldSelectedSpeedDB)
+	Local $speedText = $iCSVSpeeds[$isldSelectedCSVSpeed[$DB]] & "x";
+	IF $isldSelectedCSVSpeed[$DB] = 4 Then $speedText = "Normal"
+	GUICtrlSetData($lbltxtSelectedSpeedDB, $speedText & " speed")
+EndFunc   ;==>sldSelectedSpeedDB
+
+Func sldSelectedSpeedAB()
+	$isldSelectedCSVSpeed[$LB] = GUICtrlRead($sldSelectedSpeedAB)
+	Local $speedText = $iCSVSpeeds[$isldSelectedCSVSpeed[$LB]] & "x";
+	IF $isldSelectedCSVSpeed[$LB] = 4 Then $speedText = "Normal"
+	GUICtrlSetData($lbltxtSelectedSpeedAB, $speedText & " speed")
+EndFunc   ;
+
+Func AttackNowLB()
+	Setlog("Begin Live Base Attack TEST")
+	$g_iMatchMode = $LB			; Select Live Base As Attack Type
+	$g_aiAttackAlgorithm[$LB] = 1			; Select Scripted Attack
+	$g_sAttackScrScriptName[$LB] = GuiCtrlRead($g_hCmbScriptNameAB)		; Select Scripted Attack File From The Combo Box, Cos it wasn't refreshing until pressing Start button
+	$g_bRunState = True
+
+	ForceCaptureRegion()
+	_CaptureRegion2()
+
+	If CheckZoomOut("VillageSearch", True, False) = False Then
+		$i = 0
+		Local $bMeasured
+		Do
+			$i += 1
+			If _Sleep(500) Then Return ; wait 500 ms
+			ForceCaptureRegion()
+			$bMeasured = CheckZoomOut("VillageSearch", $i < 2, True)
+		Until $bMeasured = True Or $i >= 2
+		If $bMeasured = False Then Return ; exit func
+	EndIf
+
+	PrepareAttack($g_iMatchMode)			; lol I think it's not needed for Scripted attack, But i just Used this to be sure of my code
+	Attack()			; Fire xD
+	Setlog("End Live Base Attack TEST")
+EndFunc   ;==>AttackNowLB
+
+Func AttackNowDB()
+	Setlog("Begin Dead Base Attack TEST")
+	$g_iMatchMode = $DB			; Select Dead Base As Attack Type
+	$g_aiAttackAlgorithm[$DB] = 1			; Select Scripted Attack
+	$g_sAttackScrScriptName[$DB] = GuiCtrlRead($g_hCmbScriptNameDB)		; Select Scripted Attack File From The Combo Box, Cos it wasn't refreshing until pressing Start button
+	$g_bRunState = True
+	ForceCaptureRegion()
+	_CaptureRegion2()
+
+	If CheckZoomOut("VillageSearch", True, False) = False Then
+		$i = 0
+		Local $bMeasured
+		Do
+			$i += 1
+			If _Sleep(500) Then Return ; wait 500 ms
+			ForceCaptureRegion()
+			$bMeasured = CheckZoomOut("VillageSearch", $i < 2, True)
+		Until $bMeasured = True Or $i >= 2
+		If $bMeasured = False Then Return ; exit func
+	EndIf
+
+	PrepareAttack($g_iMatchMode)			; lol I think it's not needed for Scripted attack, But i just Used this to be sure of my code
+	Attack()			; Fire xD
+	Setlog("End Dead Base Attack TEST")
+EndFunc   ;==>AttackNowLB
