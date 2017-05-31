@@ -147,3 +147,4 @@ TestVersion*.txt
 !MyBot.run.exe
 !MyBot.run.Watchdog.exe
 !MyBot.run.Wmi.exe
+![Ll]ib/*.dll
