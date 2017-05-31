@@ -219,13 +219,13 @@ Func CustomTrain()
 			getArmyTroopTime(False,False)
 			$iKTime[4] = $g_aiTimeTrain[0]
 			If BitAND($g_aiSearchHeroWaitEnable[$DB], $eHeroKing) = $eHeroKing Or BitAND($g_aiSearchHeroWaitEnable[$LB], $eHeroKing) = $eHeroKing Then
-				$iKTime[0] = getArmyHeroTime($eKing)
+				$iKTime[0] = getArmyHeroTime($eHeroKing)
 			EndIf
 			If BitAND($g_aiSearchHeroWaitEnable[$DB], $eHeroQueen) = $eHeroQueen Or BitAND($g_aiSearchHeroWaitEnable[$LB], $eHeroQueen) = $eHeroQueen Then
-				$iKTime[1] = getArmyHeroTime($eQueen)
+				$iKTime[1] = getArmyHeroTime($eHeroQueen)
 			EndIf
 			If BitAND($g_aiSearchHeroWaitEnable[$DB], $eHeroWarden) = $eHeroWarden Or BitAND($g_aiSearchHeroWaitEnable[$LB], $eHeroWarden) = $eHeroWarden Then
-				$iKTime[2] = getArmyHeroTime($eWarden)
+				$iKTime[2] = getArmyHeroTime($eHeroWarden)
 			EndIf
 			If $g_abSearchSpellsWaitEnable[$DB] Or $g_abSearchSpellsWaitEnable[$LB] Then
 				getArmySpellTime()
