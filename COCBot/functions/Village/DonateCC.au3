@@ -146,7 +146,7 @@ Func DonateCC($Check = False)
 		$bDonateWindowOpen = False
 		For $i = 0 To UBound($g_aiDonateTroopPriority) - 1
 			Local $iTroopIndex = $g_aiDonateTroopPriority[$i]
-			Assign("canDon" & $g_asTroopNames[$iTroopIndex], False)
+			Assign("canDon" & $g_asTroopShortNames[$iTroopIndex], False)
 		Next
 		$canDonCustomA = False
 		$canDonCustomB = False
@@ -311,8 +311,9 @@ Func DonateCC($Check = False)
 						For $i = 0 To UBound($g_aiDonateTroopPriority) - 1
 							Local $iTroopIndex = $g_aiDonateTroopPriority[$i]
 							If $g_abChkDonateTroop[$iTroopIndex] Then
-								Assign("canDon" & $g_asTroopNames[$iTroopIndex],  CheckDonateTroop($iTroopIndex, $g_asTxtDonateTroop[$iTroopIndex], $g_asTxtBlacklistTroop[$iTroopIndex], $ClanString))
-								If Eval("canDon" & $g_asTroopNames[$iTroopIndex]) Then $bDonateFlag = True
+								Assign("canDon" & $g_asTroopShortNames[$iTroopIndex],  CheckDonateTroop($iTroopIndex, $g_asTxtDonateTroop[$iTroopIndex], $g_asTxtBlacklistTroop[$iTroopIndex], $ClanString))
+								If Eval("canDon" & $g_asTroopShortNames[$iTroopIndex]) Then $bDonateFlag = True
+								;SetLog($g_asTroopShortNames[$iTroopIndex] & " $bDonateFlag: " & $bDonateFlag)
 							EndIf
 						Next
 
@@ -399,7 +400,7 @@ Func DonateCC($Check = False)
 
 						For $i = 0 To UBound($g_aiDonateTroopPriority) - 1
 							Local $iTroopIndex = $g_aiDonateTroopPriority[$i]
-							If Eval("canDon" & $g_asTroopNames[$iTroopIndex]) = True Then
+							If Eval("canDon" & $g_asTroopShortNames[$iTroopIndex]) = True Then
 								DonateTroopType($iTroopIndex)
 							EndIf
 						Next
