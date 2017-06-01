@@ -114,13 +114,16 @@ Func getMyArmyHeroCount($bOpenArmyWindow = False, $bCloseArmyWindow = False, $bS
 		If $g_abAttackTypeEnable[$i] Then
 			If $g_aiSearchHeroWaitEnable[$i] > 0 Then
 				If BitAND($g_aiSearchHeroWaitEnable[$i], $eHeroKing) = $eHeroKing And BitAND($g_iHeroAvailable + $g_iHeroUpgradingBit, $eHeroKing) <> $eHeroKing Then
-					SETLOG(" " & $g_asModeText[$i] & " Setting - Waiting Barbarian King to recover. Remain: " & StringFormat("%.2f", getArmyHeroTime($eHeroKing)) & "m", $COLOR_ACTION)
+					SETLOG(" " & $g_asModeText[$i] & " Setting - Waiting Barbarian King to recover before start attack.", $COLOR_ACTION)
+					getArmyHeroTime($eHeroKing)
 				EndIf
 				If BitAND($g_aiSearchHeroWaitEnable[$i], $eHeroQueen) = $eHeroQueen And BitAND($g_iHeroAvailable + $g_iHeroUpgradingBit, $eHeroQueen) <> $eHeroQueen Then
-					SETLOG(" " & $g_asModeText[$i] & " Setting - Waiting Archer Queen to recover. Remain: " & StringFormat("%.2f", getArmyHeroTime($eHeroQueen)) & "m", $COLOR_ACTION)
+					SETLOG(" " & $g_asModeText[$i] & " Setting - Waiting Archer Queen to recover before start attack.", $COLOR_ACTION)
+					getArmyHeroTime($eHeroQueen)
 				EndIf
 				If BitAND($g_aiSearchHeroWaitEnable[$i], $eHeroWarden) = $eHeroWarden And BitAND($g_iHeroAvailable + $g_iHeroUpgradingBit, $eHeroWarden) <> $eHeroWarden Then
-					SETLOG(" " & $g_asModeText[$i] & " Setting - Waiting Grand Warden to recover. Remain: " & StringFormat("%.2f", getArmyHeroTime(eHeroWarden)) & "m", $COLOR_ACTION)
+					SETLOG(" " & $g_asModeText[$i] & " Setting - Waiting Grand Warden to recover before start attack.", $COLOR_ACTION)
+					getArmyHeroTime($eHeroWarden)
 				EndIf
 			EndIf
 		EndIf
