@@ -257,26 +257,14 @@ Next
 
 chkMyTroopOrder()
 
-
 For $i = 0 To UBound($MySpells)-1
 	If Eval("ichkPre" & $MySpells[$i][0]) = 1 Then
 		GUICtrlSetState(Eval("chkPre" & $MySpells[$i][0]), $GUI_CHECKED)
 	Else
 		GUICtrlSetState(Eval("chkPre" & $MySpells[$i][0]), $GUI_UNCHECKED)
 	EndIf
+	GUICtrlSetData(Eval("txtNum" & $MySpells[$i][0] & "Spell"), Eval("i" & $MySpells[$i][0] & "SpellComp"))
 Next
-
-
-GUICtrlSetData($txtNumLightningSpell, $iLightningSpellComp)
-GUICtrlSetData($txtNumRageSpell, $iRageSpellComp)
-GUICtrlSetData($txtNumHealSpell, $iHealSpellComp)
-GUICtrlSetData($txtNumJumpSpell, $iJumpSpellComp)
-GUICtrlSetData($txtNumFreezeSpell, $iFreezeSpellComp)
-GUICtrlSetData($txtNumCloneSpell, $iCloneSpellComp)
-GUICtrlSetData($txtNumPoisonSpell, $iPoisonSpellComp)
-GUICtrlSetData($txtNumEarthSpell, $iEarthSpellComp)
-GUICtrlSetData($txtNumHasteSpell, $iHasteSpellComp)
-GUICtrlSetData($txtNumSkeletonSpell, $iSkeletonSpellComp)
 
 GUICtrlSetData($txtTotalCountSpell2, $g_iTotalSpellValue)
 

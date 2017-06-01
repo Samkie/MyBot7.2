@@ -275,7 +275,7 @@ Func CreateMainGUIControls()
    $g_hTabBot = GUICtrlCreateTabItem(GetTranslatedFileIni("MBR Main GUI", "Tab_04", "Bot"))
 
    	; samm0d
-	$g_hTabMod = GUICtrlCreateTabItem("SamM0d v0.7.4")
+	$g_hTabMod = GUICtrlCreateTabItem("SamM0d v0.7.5")
 
    $g_hTabAbout = GUICtrlCreateTabItem(GetTranslatedFileIni("MBR Main GUI", "Tab_05", "About Us"))
    GUICtrlCreateTabItem("")

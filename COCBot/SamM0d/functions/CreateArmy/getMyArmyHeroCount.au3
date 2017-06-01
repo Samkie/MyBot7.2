@@ -1,12 +1,12 @@
 ; #FUNCTION# ====================================================================================================================
-; Name ..........: getArmyHeroCount
+; Name ..........: getMyArmyHeroCount
 ; Description ...: Obtains count of heroes available from Training - Army Overview window
-; Syntax ........: getArmyHeroCount()
+; Syntax ........: getMyArmyHeroCount()
 ; Parameters ....: $bOpenArmyWindow  = Bool value true if train overview window needs to be opened
 ;				 : $bCloseArmyWindow = Bool value, true if train overview window needs to be closed
 ; Return values .: None
 ; Author ........:
-; Modified ......: MonkeyHunter (06-2016), MR.ViPER (10-2016), Fliegerfaust (03-2017)
+;~ ; Modified ......: MonkeyHunter (06-2016), MR.ViPER (10-2016), Fliegerfaust (03-2017)， Samkie (1 Jun, 2017)
 ; Remarks .......: This file is part of MyBot, previously known as ClashGameBot. Copyright 2015-2017
 ;                  MyBot is distributed under the terms of the GNU GPL
 ; Related .......:
@@ -14,9 +14,9 @@
 ; Example .......: No
 ; ===============================================================================================================================
 ;
-Func getArmyHeroCount($bOpenArmyWindow = False, $bCloseArmyWindow = False, $bSetLog = True, $CheckWindow = True)
+Func getMyArmyHeroCount($bOpenArmyWindow = False, $bCloseArmyWindow = False, $bSetLog = True, $CheckWindow = True)
 
-	If $g_iDebugSetlogTrain = 1 Or $g_iDebugSetlog = 1 Then SetLog("Begin getArmyHeroCount:", $COLOR_DEBUG)
+	If $g_iDebugSetlogTrain = 1 Or $g_iDebugSetlog = 1 Then SetLog("Begin getMyArmyHeroCount:", $COLOR_DEBUG)
 
 	If $CheckWindow Then
 		If Not $bOpenArmyWindow And Not IsTrainPage() Then ; check for train page
@@ -38,9 +38,10 @@ Func getArmyHeroCount($bOpenArmyWindow = False, $bCloseArmyWindow = False, $bSet
 	Local $sResult
 	Local Const $iHeroes = 3
 	Local $sMessage = ""
+	Local $tmpUpgradingHeroes[3] = [ $eHeroNone, $eHeroNone, $eHeroNone ]
 
 	For $i = 0 To $iHeroes - 1
-		$sResult = ArmyHeroStatus($i)
+		$sResult = myArmyHeroStatus($i)
 		If $sResult <> "" Then ; we found something, figure out what?
 			Select
 				Case StringInStr($sResult, "king", $STR_NOCASESENSEBASIC)
@@ -70,6 +71,7 @@ Func getArmyHeroCount($bOpenArmyWindow = False, $bCloseArmyWindow = False, $bSet
 					Switch $i
 						Case 0
 							$sMessage = "-Barbarian King"
+							$tmpUpgradingHeroes[$i] = $eHeroKing
 							; safety code to warn user when wait for hero found while being upgraded to reduce stupid user posts for not attacking
 							If BitAND($g_aiAttackUseHeroes[$DB], $g_aiSearchHeroWaitEnable[$DB], $eHeroKing) = $eHeroKing Or BitAND($g_aiAttackUseHeroes[$LB], $g_aiSearchHeroWaitEnable[$LB], $eHeroKing) = $eHeroKing Then ; check wait for hero status
 								_GUI_Value_STATE("SHOW", $groupKingSleeping) ; Show king sleeping icon
@@ -77,6 +79,7 @@ Func getArmyHeroCount($bOpenArmyWindow = False, $bCloseArmyWindow = False, $bSet
 							EndIf
 						Case 1
 							$sMessage = "-Archer Queen"
+							$tmpUpgradingHeroes[$i] = $eHeroQueen
 							; safety code
 							If BitAND($g_aiAttackUseHeroes[$DB], $g_aiSearchHeroWaitEnable[$DB], $eHeroQueen) = $eHeroQueen Or BitAND($g_aiAttackUseHeroes[$LB], $g_aiSearchHeroWaitEnable[$LB], $eHeroQueen) = $eHeroQueen Then
 								_GUI_Value_STATE("SHOW", $groupQueenSleeping)
@@ -84,6 +87,7 @@ Func getArmyHeroCount($bOpenArmyWindow = False, $bCloseArmyWindow = False, $bSet
 							EndIf
 						Case 2
 							$sMessage = "-Grand Warden"
+							$tmpUpgradingHeroes[$i] = $eHeroWarden
 							; safety code
 							If BitAND($g_aiAttackUseHeroes[$DB], $g_aiSearchHeroWaitEnable[$DB], $eHeroWarden) = $eHeroWarden Or BitAND($g_aiAttackUseHeroes[$LB], $g_aiSearchHeroWaitEnable[$LB], $eHeroWarden) = $eHeroWarden Then
 								_GUI_Value_STATE("SHOW", $groupWardenSleeping)
@@ -104,6 +108,32 @@ Func getArmyHeroCount($bOpenArmyWindow = False, $bCloseArmyWindow = False, $bSet
 		EndIf
 	Next
 
+	$g_iHeroUpgradingBit = BitOR($tmpUpgradingHeroes[0], $tmpUpgradingHeroes[1], $tmpUpgradingHeroes[2])
+	; ==== samm0d
+	For $i = $DB To $LB
+		If $g_abAttackTypeEnable[$i] Then
+			If $g_aiSearchHeroWaitEnable[$i] > 0 Then
+				If BitAND($g_aiSearchHeroWaitEnable[$i], $eHeroKing) = $eHeroKing And BitAND($g_iHeroAvailable + $g_iHeroUpgradingBit, $eHeroKing) <> $eHeroKing Then
+					SETLOG(" " & $g_asModeText[$i] & " Setting - Waiting Barbarian King to recover before start attack. Remain: " & getArmyHeroTime($eHeroKing), $COLOR_ACTION)
+				EndIf
+				If BitAND($g_aiSearchHeroWaitEnable[$i], $eHeroQueen) = $eHeroQueen And BitAND($g_iHeroAvailable + $g_iHeroUpgradingBit, $eHeroQueen) <> $eHeroQueen Then
+					SETLOG(" " & $g_asModeText[$i] & " Setting - Waiting Archer Queen to recover before start attack. Remain: " & getArmyHeroTime($eHeroQueen), $COLOR_ACTION)
+				EndIf
+				If BitAND($g_aiSearchHeroWaitEnable[$i], $eHeroWarden) = $eHeroWarden And BitAND($g_iHeroAvailable + $g_iHeroUpgradingBit, $eHeroWarden) <> $eHeroWarden Then
+					SETLOG(" " & $g_asModeText[$i] & " Setting - Waiting Grand Warden to recover before start attack. Remain: " & getArmyHeroTime($eHeroWarden), $COLOR_ACTION)
+				EndIf
+			EndIf
+		EndIf
+	Next
+
+	If ($g_abAttackTypeEnable[$DB] = True And BitAND($g_aiSearchHeroWaitEnable[$DB], $g_iHeroAvailable + $g_iHeroUpgradingBit) = $g_aiSearchHeroWaitEnable[$DB]) Or _
+		($g_abAttackTypeEnable[$LB] = True And BitAND($g_aiSearchHeroWaitEnable[$LB], $g_iHeroAvailable + $g_iHeroUpgradingBit) = $g_aiSearchHeroWaitEnable[$LB]) Or _
+		($g_abAttackTypeEnable[$DB] = False And $g_abAttackTypeEnable[$LB] = False) Then
+		$g_bFullArmyHero = True
+	EndIf
+
+	If $g_iDebugSetlogTrain = 1 Then SetLog("$g_bFullArmyHero: " & $g_bFullArmyHero)
+
 	If $g_iDebugSetlogTrain = 1 Or $iDebugArmyHeroCount = 1 Then SetLog("Hero Status K|Q|W : " & BitAND($g_iHeroAvailable, $eHeroKing) & "|" & BitAND($g_iHeroAvailable, $eHeroQueen) & "|" & BitAND($g_iHeroAvailable, $eHeroWarden), $COLOR_DEBUG)
 
 	If $bCloseArmyWindow Then
@@ -111,26 +141,29 @@ Func getArmyHeroCount($bOpenArmyWindow = False, $bCloseArmyWindow = False, $bSet
 		If _Sleep($DELAYCHECKARMYCAMP4) Then Return
 	EndIf
 
-EndFunc   ;==>getArmyHeroCount
+EndFunc   ;==>getMyArmyHeroCount
 
-Func ArmyHeroStatus($i)
-	Local $sImageDir = "trainwindow-HeroStatus-bundle", $sResult = ""
-	Local Const $aHeroesRect[3][4] = [[660, 349, 673, 361], [734, 349, 747, 361], [807, 349, 822, 361]]
+; samm0d
+Func myArmyHeroStatus($iHeroSlot)
+	Local $sDirectory = @ScriptDir & "\COCBot\SamM0d\images\HeroStatus\"
+	Local $returnProps="objectname"
+	Local $aPropsValues
+	Local Const $aHeroesRect[3][4] = [[656, 344, 677, 364], [730, 344, 751, 364], [804, 344, 825, 364]]
 
-	; Perform the search
-	_CaptureRegion2($aHeroesRect[$i][0], $aHeroesRect[$i][1], $aHeroesRect[$i][2], $aHeroesRect[$i][3])
-	Local $res = DllCallMyBot("SearchMultipleTilesBetweenLevels", "handle", $g_hHBitmap2, "str", $sImageDir, "str", "FV", "Int", 0, "str", "FV", "Int", 0, "Int", 1000)
-	If $res[0] <> "" Then
-		Local $aKeys = StringSplit($res[0], "|", $STR_NOCOUNT)
-		If StringInStr($aKeys[0], "xml", $STR_NOCASESENSEBASIC) Then
-			Local $aResult = StringSplit($aKeys[0], "_", $STR_NOCOUNT)
-			$sResult = $aResult[0]
-			Return $sResult
-		EndIf
+	If _Sleep(100) Then Return
+	_CaptureRegion2($aHeroesRect[$iHeroSlot][0], $aHeroesRect[$iHeroSlot][1], $aHeroesRect[$iHeroSlot][2], $aHeroesRect[$iHeroSlot][3])
+
+	Local $result = findMultiple($sDirectory ,"FV" ,"FV", 0, 0, 1 , $returnProps, False )
+	If IsArray($result) then
+		For $i = 0 To UBound($result) -1
+			$aPropsValues = $result[$i] ; should be return objectname,objectpoints
+			If UBound($aPropsValues) = 1 then
+				Return $aPropsValues[0] ; objectname
+			EndIf
+		Next
 	EndIf
 
-	;return hero if there was a problem with the search
-	Switch $i
+	Switch $iHeroSlot
 		Case 0
 			Return "king"
 		Case 1
@@ -138,5 +171,4 @@ Func ArmyHeroStatus($i)
 		Case 2
 			Return "warden"
 	EndSwitch
-
-EndFunc   ;==>ArmyHeroStatus
+EndFunc

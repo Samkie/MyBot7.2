@@ -82,16 +82,17 @@ Func getArmyCCCapacity($bOpenArmyWindow = False, $bCloseArmyWindow = False)
 	SetLog("Clan Castle troops: " & $CurCCCamp & "/" & $CurTotalCCCamp & " (" & $CCCapacity & "%)")
 
 
-	If ($CurCCCamp >= ($CurTotalCCCamp * $CCStrength / 100)) Then
-		$FullCCTroops = True
-	Else
-		$FullCCTroops = False
-	EndIf
-
 	If $ichkWait4CC = 1 Then
+		If ($CurCCCamp >= ($CurTotalCCCamp * $CCStrength / 100)) Then
+			$FullCCTroops = True
+		Else
+			$FullCCTroops = False
+		EndIf
 		If $FullCCTroops = False Then
 			SETLOG(" All mode - Waiting clan castle troops before start attack.", $COLOR_ACTION)
 		EndIf
+	Else
+		$FullCCTroops = IsFullClanCastleTroops()
 	EndIf
 
 	If $bCloseArmyWindow = True Then

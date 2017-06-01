@@ -794,8 +794,6 @@ Func Idle() ;Sequence that runs until Full Army
 	If $g_iDebugSetlog = 1 Then SetLog("Func Idle ", $COLOR_DEBUG)
 
 
-	If $iSamM0dDebug Then SetLog("$g_bfullArmy: " & $g_bfullArmy & "   $g_bFullArmyHero: " & $g_bFullArmyHero & "   $g_bFullArmySpells: " & $g_bFullArmySpells)
-	If $iSamM0dDebug Then SetLog("$g_bIsFullArmywithHeroesAndSpells: " & $g_bIsFullArmywithHeroesAndSpells)
 	; samm0d - check make donate type account enter idle loop
 	If $ichkEnableMySwitch Then
 		If $iCurActiveAcc <> -1 Then
@@ -970,7 +968,7 @@ Func Idle() ;Sequence that runs until Full Army
 		; samm0d
 		If $ichkEnableMySwitch Then
 			; perform switch acc since army still need waiting
-			If $IsFullArmywithHeroesAndSpells = False Then
+			If $g_bIsFullArmywithHeroesAndSpells = False Then
 ;~ 				$bChangeNextAcc = True
 				$g_bRestart = True
 				ExitLoop

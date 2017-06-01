@@ -134,6 +134,7 @@ TestVersion*.txt
 !COCBot/SamM0d/[Ii]mages/Spell/*.*
 !COCBot/SamM0d/[Ii]mages/Spell/OnBrewSpell/*.*
 !COCBot/SamM0d/[Ii]mages/Spell/QueueSpell/*.*
+!COCBot/SamM0d/[Ii]mages/HeroStatus/*.*
 !COCBot/SamM0d/functions/OCR/armybuildinfo/*.*
 !COCBot/SamM0d/functions/OCR/armycap/*.*
 !COCBot/SamM0d/functions/OCR/armyqty/*.*

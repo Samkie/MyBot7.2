@@ -62,77 +62,55 @@ EndFunc
 
 Func cmbTroopSetting()
 	For $i = 0 To UBound($MyTroops) - 1
-		IniWriteS($g_sProfileConfigPath, "MyTroops", $MyTroops[$i][0] & $icmbTroopSetting, GUICtrlRead(Eval("txtMy" & $MyTroops[$i][0])))
-		;SetLog("Q: " & GUICtrlRead(Eval("txtMy" & $MyTroops[$i][0])))
-		IniWriteS($g_sProfileConfigPath, "MyTroops", $MyTroops[$i][0] & "Order" & $icmbTroopSetting, GUICtrlRead(Eval("cmbMy"& $MyTroops[$i][0] & "Order")))
+		$MyTroopsSetting[$icmbTroopSetting][$i][0] = GUICtrlRead(Eval("txtMy" & $MyTroops[$i][0]))
+		$MyTroopsSetting[$icmbTroopSetting][$i][1] = GUICtrlRead(Eval("cmbMy"& $MyTroops[$i][0] & "Order"))
 	Next
 	For $i = 0 To UBound($MySpells) - 1
 		If GUICtrlRead(Eval("chkPre" & $MySpells[$i][0])) = $GUI_CHECKED Then
-			IniWriteS($g_sProfileConfigPath, "MySpells", $MySpells[$i][0] & $icmbTroopSetting, 1)
+			$MySpellSetting[$icmbTroopSetting][$i][1] = 1
 		Else
-			IniWriteS($g_sProfileConfigPath, "MySpells", $MySpells[$i][0] & $icmbTroopSetting, 0)
+			$MySpellSetting[$icmbTroopSetting][$i][1] = 0
 		EndIf
+		$MySpellSetting[$icmbTroopSetting][$i][0] = GUICtrlRead(Eval("txtNum" & $MySpells[$i][0] & "Spell"))
 	Next
-
-	IniWriteS($g_sProfileConfigPath, "Spells", "LightningSpell" & $icmbTroopSetting, GUICtrlRead($txtNumLightningSpell))
-	IniWriteS($g_sProfileConfigPath, "Spells", "RageSpell" & $icmbTroopSetting, GUICtrlRead($txtNumRageSpell))
-	IniWriteS($g_sProfileConfigPath, "Spells", "HealSpell" & $icmbTroopSetting, GUICtrlRead($txtNumHealSpell))
-	IniWriteS($g_sProfileConfigPath, "Spells", "JumpSpell" & $icmbTroopSetting, GUICtrlRead($txtNumJumpSpell))
-	IniWriteS($g_sProfileConfigPath, "Spells", "FreezeSpell" & $icmbTroopSetting, GUICtrlRead($txtNumFreezeSpell))
-	IniWriteS($g_sProfileConfigPath, "Spells", "CloneSpell" & $icmbTroopSetting, GUICtrlRead($txtNumCloneSpell))
-	IniWriteS($g_sProfileConfigPath, "Spells", "PoisonSpell" & $icmbTroopSetting, GUICtrlRead($txtNumPoisonSpell))
-	IniWriteS($g_sProfileConfigPath, "Spells", "EarthSpell" & $icmbTroopSetting, GUICtrlRead($txtNumEarthSpell))
-	IniWriteS($g_sProfileConfigPath, "Spells", "HasteSpell" & $icmbTroopSetting, GUICtrlRead($txtNumHasteSpell))
-	IniWriteS($g_sProfileConfigPath, "Spells", "SkeletonSpell" & $icmbTroopSetting, GUICtrlRead($txtNumSkeletonSpell))
-
 
 	$icmbTroopSetting = _GUICtrlComboBox_GetCurSel($cmbTroopSetting)
 
-	$ichkMyTroopsOrder = IniRead($g_sProfileConfigPath, "MyTroops", "Order" & $icmbTroopSetting, "0")
+	;$ichkMyTroopsOrder = IniRead($g_sProfileConfigPath, "MyTroops", "Order" & $icmbTroopSetting, "0")
+
 	For $i = 0 To UBound($MyTroops) - 1
-		$MyTroops[$i][3] =  IniRead($g_sProfileConfigPath, "MyTroops", $MyTroops[$i][0] & $icmbTroopSetting, "0")
-		$MyTroops[$i][1] =  Number(IniRead($g_sProfileConfigPath, "MyTroops", $MyTroops[$i][0] & "Order" & $icmbTroopSetting, $i + 1))
+		$MyTroops[$i][3] =  $MyTroopsSetting[$icmbTroopSetting][$i][0]
+		$MyTroops[$i][1] =  $MyTroopsSetting[$icmbTroopSetting][$i][1]
 	Next
 
 	For $i = 0 To UBound($MySpells) - 1
-		Local $tempPreSpell
-		IniReadS($tempPreSpell, $g_sProfileConfigPath, "MySpells", $MySpells[$i][0] & $icmbTroopSetting, "0", "Int")
-		Assign("ichkPre" & $MySpells[$i][0], $tempPreSpell)
-		;IniReadS($MySpells[$i][1], $g_sProfileConfigPath, "MyTroops", $MySpells[$i][0] & "Order", $i + 1)
+		Assign("i" & $MySpells[$i][0] & "SpellComp",  $MySpellSetting[$icmbTroopSetting][$i][0])
+		Assign("ichkPre" & $MySpells[$i][0],  $MySpellSetting[$icmbTroopSetting][$i][1])
 	Next
-	IniReadS($iLightningSpellComp, $g_sProfileConfigPath, "Spells", "LightningSpell" & $icmbTroopSetting, "0","Int")
-	IniReadS($iRageSpellComp, $g_sProfileConfigPath, "Spells", "RageSpell" & $icmbTroopSetting, "0","Int")
-	IniReadS($iHealSpellComp, $g_sProfileConfigPath, "Spells", "HealSpell" & $icmbTroopSetting, "0","Int")
-	IniReadS($iJumpSpellComp, $g_sProfileConfigPath, "Spells", "JumpSpell" & $icmbTroopSetting, "0","Int")
-	IniReadS($iFreezeSpellComp, $g_sProfileConfigPath, "Spells", "FreezeSpell" & $icmbTroopSetting, "0","Int")
-	IniReadS($iCloneSpellComp, $g_sProfileConfigPath, "Spells", "CloneSpell" & $icmbTroopSetting, "0", "Int")
-	IniReadS($iPoisonSpellComp, $g_sProfileConfigPath, "Spells", "PoisonSpell" & $icmbTroopSetting, "0","Int")
-	IniReadS($iHasteSpellComp, $g_sProfileConfigPath, "Spells", "HasteSpell" & $icmbTroopSetting, "0","Int")
-	IniReadS($iEarthSpellComp, $g_sProfileConfigPath, "Spells", "EarthSpell" & $icmbTroopSetting, "0","Int")
-	IniReadS($iSkeletonSpellComp, $g_sProfileConfigPath, "Spells", "SkeletonSpell" & $icmbTroopSetting, "0", "Int")
-
 
 	For $i = 0 To UBound($MyTroops)-1
 		GUICtrlSetData(Eval("txtMy" & $MyTroops[$i][0]), $MyTroops[$i][3])
 		_GUICtrlComboBox_SetCurSel(Eval("cmbMy" & $MyTroops[$i][0] & "Order"), $MyTroops[$i][1]-1)
 	Next
+
 	For $i = 0 To UBound($MySpells)-1
 		If Eval("ichkPre" & $MySpells[$i][0]) = 1 Then
 			GUICtrlSetState(Eval("chkPre" & $MySpells[$i][0]), $GUI_CHECKED)
 		Else
 			GUICtrlSetState(Eval("chkPre" & $MySpells[$i][0]), $GUI_UNCHECKED)
 		EndIf
+		GUICtrlSetData(Eval("txtNum" & $MySpells[$i][0] & "Spell"), Eval("i" & $MySpells[$i][0] & "SpellComp"))
 	Next
-	GUICtrlSetData($txtNumLightningSpell, $iLightningSpellComp)
-	GUICtrlSetData($txtNumRageSpell, $iRageSpellComp)
-	GUICtrlSetData($txtNumHealSpell, $iHealSpellComp)
-	GUICtrlSetData($txtNumJumpSpell, $iJumpSpellComp)
-	GUICtrlSetData($txtNumFreezeSpell, $iFreezeSpellComp)
-	GUICtrlSetData($txtNumCloneSpell, $iCloneSpellComp)
-	GUICtrlSetData($txtNumPoisonSpell, $iPoisonSpellComp)
-	GUICtrlSetData($txtNumEarthSpell, $iEarthSpellComp)
-	GUICtrlSetData($txtNumHasteSpell, $iHasteSpellComp)
-	GUICtrlSetData($txtNumSkeletonSpell, $iSkeletonSpellComp)
+;~ 	GUICtrlSetData($txtNumLightningSpell, $iLightningSpellComp)
+;~ 	GUICtrlSetData($txtNumRageSpell, $iRageSpellComp)
+;~ 	GUICtrlSetData($txtNumHealSpell, $iHealSpellComp)
+;~ 	GUICtrlSetData($txtNumJumpSpell, $iJumpSpellComp)
+;~ 	GUICtrlSetData($txtNumFreezeSpell, $iFreezeSpellComp)
+;~ 	GUICtrlSetData($txtNumCloneSpell, $iCloneSpellComp)
+;~ 	GUICtrlSetData($txtNumPoisonSpell, $iPoisonSpellComp)
+;~ 	GUICtrlSetData($txtNumEarthSpell, $iEarthSpellComp)
+;~ 	GUICtrlSetData($txtNumHasteSpell, $iHasteSpellComp)
+;~ 	GUICtrlSetData($txtNumSkeletonSpell, $iSkeletonSpellComp)
 
 	chkMyTroopOrder()
 	lblMyTotalCountSpell()

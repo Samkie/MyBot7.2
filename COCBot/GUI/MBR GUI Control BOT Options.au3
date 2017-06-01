@@ -272,8 +272,10 @@ Func btnTestTrain()
 	Local $currentRunState = $g_bRunState
 	$g_bRunState = True
 
+;~ 	getArmyHeroCount()
+;~ 	If _Sleep(50) Then Return ; 10ms improve pause button response
 
-	_ArrayDisplay($aProfileStats)
+ 	_ArrayDisplay($MyTroops)
 
 
 ;~ 	BeginImageTest()

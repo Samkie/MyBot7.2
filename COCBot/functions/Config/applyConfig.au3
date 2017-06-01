@@ -34,8 +34,9 @@ Func applyConfig($bRedrawAtExit = True, $TypeReadSave = "Read") ;Applies the dat
 
 	; <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
-	;===========SamM0d Config=======================
+;===========SamM0d Config=======================
 	#include "..\..\SamM0d\applyConfig.au3"
+	SetComboTroopComp()
 	;==============End SamM0D Config================
 
 	; <><><><> Bot / Profile (global settings) <><><><>
@@ -132,6 +133,7 @@ Func applyConfig($bRedrawAtExit = True, $TypeReadSave = "Read") ;Applies the dat
 
 
 	ApplyConfig_Debug($TypeReadSave)
+
 
 	; samm0d
 	; Multi Finger (LunaEclipse)

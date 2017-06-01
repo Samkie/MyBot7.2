@@ -213,9 +213,9 @@ IniWrite($g_sProfileConfigPath, "StickToTrainPage", "Minutes", GUICtrlRead($txtS
 
 ; My Troops
 If GUICtrlRead($chkDisablePretrainTroops) = $GUI_CHECKED Then
-	IniWriteS($g_sProfileConfigPath, "MyTroops", "PreTrain", 1)
+	IniWriteS($g_sProfileConfigPath, "MyTroops", "NoPreTrain", 1)
 Else
-	IniWriteS($g_sProfileConfigPath, "MyTroops", "PreTrain", 0)
+	IniWriteS($g_sProfileConfigPath, "MyTroops", "NoPreTrain", 0)
 EndIf
 
 If GUICtrlRead($chkEnableDeleteExcessTroops) = $GUI_CHECKED Then
@@ -230,14 +230,10 @@ Else
 	IniWriteS($g_sProfileConfigPath, "MyTroops", "EnableCustomTrain", 0)
 EndIf
 
-;SetLog("$ichkMyTroopsOrder: " & $ichkMyTroopsOrder)
-
 If GUICtrlRead($chkMyTroopsOrder) = $GUI_CHECKED Then
 	IniWriteS($g_sProfileConfigPath, "MyTroops", "Order", 1)
-	;SetLog("$chkMyTroopsOrder: " & 1)
 Else
 	IniWriteS($g_sProfileConfigPath, "MyTroops", "Order", 0)
-	;SetLog("$chkMyTroopsOrder: " & 0)
 EndIf
 
 ;IniWrite($g_sProfileConfigPath, "COCVer", "CoCVersion", _GUICtrlComboBox_GetCurSel($cmbCoCVersion))
@@ -248,45 +244,19 @@ Local $itempcmbTroopSetting = _GUICtrlComboBox_GetCurSel($cmbTroopSetting)
 
 IniWriteS($g_sProfileConfigPath, "MyTroops", "Composition", $itempcmbTroopSetting)
 
-For $i = 0 To UBound($MyTroops) - 1
-	IniWriteS($g_sProfileConfigPath, "MyTroops", $MyTroops[$i][0] & $itempcmbTroopSetting, GUICtrlRead(Eval("txtMy" & $MyTroops[$i][0])))
-	IniWriteS($g_sProfileConfigPath, "MyTroops", $MyTroops[$i][0] & "Order" & $itempcmbTroopSetting, GUICtrlRead(Eval("cmbMy"& $MyTroops[$i][0] & "Order")))
+
+cmbTroopSetting()
+
+For $j = 0 To 2
+	For $i = 0 To UBound($MyTroops) - 1
+		IniWriteS($g_sProfileConfigPath, "MyTroops", $MyTroops[$i][0] & $j, $MyTroopsSetting[$j][$i][0])
+		IniWriteS($g_sProfileConfigPath, "MyTroops", $MyTroops[$i][0] & "Order" & $j, $MyTroopsSetting[$j][$i][1])
+	Next
 Next
 
+For $j = 0 To 2
 	For $i = 0 To UBound($MySpells) - 1
-		If GUICtrlRead(Eval("chkPre" & $MySpells[$i][0])) = $GUI_CHECKED Then
-			IniWriteS($g_sProfileConfigPath, "MySpells", $MySpells[$i][0] & $itempcmbTroopSetting, 1)
-		Else
-			IniWriteS($g_sProfileConfigPath, "MySpells", $MySpells[$i][0] & $itempcmbTroopSetting, 0)
-		EndIf
+		IniWriteS($g_sProfileConfigPath, "MySpells", $MySpells[$i][0] & $j, $MySpellSetting[$j][$i][0])
+		IniWriteS($g_sProfileConfigPath, "MySpells", $MySpells[$i][0] & "Pre" & $j, $MySpellSetting[$j][$i][1])
 	Next
-	IniWriteS($g_sProfileConfigPath, "Spells", "LightningSpell" & $itempcmbTroopSetting, GUICtrlRead($txtNumLightningSpell))
-	IniWriteS($g_sProfileConfigPath, "Spells", "RageSpell" & $itempcmbTroopSetting, GUICtrlRead($txtNumRageSpell))
-	IniWriteS($g_sProfileConfigPath, "Spells", "HealSpell" & $itempcmbTroopSetting, GUICtrlRead($txtNumHealSpell))
-	IniWriteS($g_sProfileConfigPath, "Spells", "JumpSpell" & $itempcmbTroopSetting, GUICtrlRead($txtNumJumpSpell))
-	IniWriteS($g_sProfileConfigPath, "Spells", "FreezeSpell" & $itempcmbTroopSetting, GUICtrlRead($txtNumFreezeSpell))
-	IniWriteS($g_sProfileConfigPath, "Spells", "CloneSpell" & $itempcmbTroopSetting, GUICtrlRead($txtNumCloneSpell))
-	IniWriteS($g_sProfileConfigPath, "Spells", "PoisonSpell" & $itempcmbTroopSetting, GUICtrlRead($txtNumPoisonSpell))
-	IniWriteS($g_sProfileConfigPath, "Spells", "EarthSpell" & $itempcmbTroopSetting, GUICtrlRead($txtNumEarthSpell))
-	IniWriteS($g_sProfileConfigPath, "Spells", "HasteSpell" & $itempcmbTroopSetting, GUICtrlRead($txtNumHasteSpell))
-	IniWriteS($g_sProfileConfigPath, "Spells", "SkeletonSpell" & $itempcmbTroopSetting, GUICtrlRead($txtNumSkeletonSpell))
-
-
-;~ For $i = 0 To UBound($MySpells) - 1
-;~ 	If GUICtrlRead(Eval("chkPre" & $MySpells[$i][0])) = $GUI_CHECKED Then
-;~ 		IniWriteS($g_sProfileConfigPath, "MySpells", $MySpells[$i][0], 1)
-;~ 	Else
-;~ 		IniWriteS($g_sProfileConfigPath, "MySpells", $MySpells[$i][0], 0)
-;~ 	EndIf
-;~ Next
-
-;~ IniWriteS($g_sProfileConfigPath, "Spells", "LightningSpell", GUICtrlRead($txtNumLightningSpell))
-;~ IniWriteS($g_sProfileConfigPath, "Spells", "RageSpell", GUICtrlRead($txtNumRageSpell))
-;~ IniWriteS($g_sProfileConfigPath, "Spells", "HealSpell", GUICtrlRead($txtNumHealSpell))
-;~ IniWriteS($g_sProfileConfigPath, "Spells", "JumpSpell", GUICtrlRead($txtNumJumpSpell))
-;~ IniWriteS($g_sProfileConfigPath, "Spells", "FreezeSpell", GUICtrlRead($txtNumFreezeSpell))
-;~ IniWriteS($g_sProfileConfigPath, "Spells", "CloneSpell", GUICtrlRead($txtNumCloneSpell))
-;~ IniWriteS($g_sProfileConfigPath, "Spells", "PoisonSpell", GUICtrlRead($txtNumPoisonSpell))
-;~ IniWriteS($g_sProfileConfigPath, "Spells", "EarthSpell", GUICtrlRead($txtNumEarthSpell))
-;~ IniWriteS($g_sProfileConfigPath, "Spells", "HasteSpell", GUICtrlRead($txtNumHasteSpell))
-;~ IniWriteS($g_sProfileConfigPath, "Spells", "SkeletonSpell", GUICtrlRead($txtNumSkeletonSpell))
+Next

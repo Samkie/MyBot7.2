@@ -4,15 +4,13 @@
 ; Syntax ........: CustomTrain(),DoCheckReVamp($bDoFullTrain = False)
 ; Parameters ....:
 ; Return values .: None
-; Author ........: Samkie (27 Dec 2016)
+; Author ........: Samkie (1 Jun, 2017)
 ; Remarks .......: This file is part of MyBot, previously known as ClashGameBot. Copyright 2015-2016
 ;                  MyBot is distributed under the term
 ; Related .......:
 ; Link ..........: https://github.com/MyBotRun/MyBot/wiki
 ; Example .......: No
 ; ===============================================================================================================================
-
-Global $IsFullArmywithHeroesAndSpells = False
 
 Func CustomTrain()
 	Local $tempCounter = 0
@@ -51,7 +49,7 @@ Func CustomTrain()
 
 	If _Sleep(250) Then Return
 
-	getArmyHeroCount()
+	getMyArmyHeroCount()
 	If _Sleep(50) Then Return ; 10ms improve pause button response
 
 	getArmyCCCapacity()
@@ -274,11 +272,22 @@ Func CustomTrain()
 		$g_bFullArmySpells = ($g_abAttackTypeEnable[$DB] = True And $g_abSearchSpellsWaitEnable[$DB] = False) Or ($g_abAttackTypeEnable[$LB] = True And $g_abSearchSpellsWaitEnable[$LB] = False)
 	EndIf
 
-	If $g_bFullArmy = True And $g_bFullArmyHero = True And $g_bFullArmySpells = True Then
+	Local $bFullArmyCCSpells = IsFullClanCastleSpells()
+
+	If $iSamM0dDebug Then SetLog("$g_bfullArmy: " & $g_bfullArmy)
+	If $iSamM0dDebug Then SetLog("$g_bFullArmyHero: " & $g_bFullArmyHero)
+	If $iSamM0dDebug Then SetLog("$g_bFullArmySpells: " & $g_bFullArmySpells)
+	If $iSamM0dDebug Then SetLog("$bFullArmyCCSpells: " & $bFullArmyCCSpells)
+	If $iSamM0dDebug Then SetLog("$FullCCTroops: " & $FullCCTroops)
+
+	If $g_bFullArmy = True And $g_bFullArmyHero = True And $g_bFullArmySpells = True And $bFullArmyCCSpells = True And $FullCCTroops = True Then
 		$g_bIsFullArmywithHeroesAndSpells = True
 	Else
 		$g_bIsFullArmywithHeroesAndSpells = False
 	EndIf
+
+	If $iSamM0dDebug Then SetLog("$g_bIsFullArmywithHeroesAndSpells: " & $g_bIsFullArmywithHeroesAndSpells)
+
 EndFunc   ;==>CustomTrain
 
 Func DoCheckReVamp($bDoFullTrain = False)

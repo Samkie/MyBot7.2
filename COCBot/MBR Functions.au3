@@ -36,6 +36,7 @@
 #include "SamM0d\functions\CreateArmy\getMyArmyCCCapacity.au3"
 #include "SamM0d\functions\CreateArmy\getMyArmyCapacity.au3"
 #include "SamM0d\functions\CreateArmy\getMyArmySpellCapacity.au3"
+#include "SamM0d\functions\CreateArmy\getMyArmyHeroCount.au3"
 #include "SamM0d\functions\CreateArmy\MyNameOfTroop.au3"
 #include "SamM0d\GUI\GUI Control MySwitch Setting.au3"
 #include "SamM0d\GUI\MBR GUI Control Child SamM0d.au3"

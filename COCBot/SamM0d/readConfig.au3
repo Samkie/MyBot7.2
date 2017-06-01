@@ -116,49 +116,29 @@ IniReadS($icmbMyQuickTrain, $g_sProfileConfigPath, "MyTroops", "TrainCombo", "0"
 IniReadS($icmbTroopSetting, $g_sProfileConfigPath, "MyTroops", "Composition", "0", "Int")
 ;$icmbCoCVersion = IniRead($g_sProfileConfigPath, "COCVer", "CoCVersion", "0")
 
-IniReadS($ichkDisablePretrainTroops, $g_sProfileConfigPath, "MyTroops", "PreTrain", "0", "Int")
+IniReadS($ichkDisablePretrainTroops, $g_sProfileConfigPath, "MyTroops", "NoPreTrain", "0", "Int")
 
+For $j = 0 To 2
+	For $i = 0 To UBound($MyTroops) - 1
+		IniReadS($MyTroopsSetting[$j][$i][0],$g_sProfileConfigPath, "MyTroops", $MyTroops[$i][0] & $j, "0","Int")
+		IniReadS($MyTroopsSetting[$j][$i][1],$g_sProfileConfigPath, "MyTroops", $MyTroops[$i][0] & "Order" & $j, $i + 1,"Int")
+	Next
+Next
 For $i = 0 To UBound($MyTroops) - 1
-	;$MyTroops[$i][3] =  IniRead($g_sProfileConfigPath, "MyTroops", $MyTroops[$i][0] & $icmbTroopSetting, "0")
-	;$MyTroops[$i][1] =  Number(IniRead($g_sProfileConfigPath, "MyTroops", $MyTroops[$i][0] & "Order" & $icmbTroopSetting, $i + 1))
-	IniReadS($MyTroops[$i][3],$g_sProfileConfigPath, "MyTroops", $MyTroops[$i][0] & $icmbTroopSetting, "0","Int")
-	IniReadS($MyTroops[$i][1],$g_sProfileConfigPath, "MyTroops", $MyTroops[$i][0] & "Order" & $icmbTroopSetting, $i + 1,"Int")
+	$MyTroops[$i][3] =  $MyTroopsSetting[$icmbTroopSetting][$i][0]
+	$MyTroops[$i][1] =  $MyTroopsSetting[$icmbTroopSetting][$i][1]
 Next
 
+For $j = 0 To 2
 	For $i = 0 To UBound($MySpells) - 1
-		Local $tempPreSpell
-		IniReadS($tempPreSpell, $g_sProfileConfigPath, "MySpells", $MySpells[$i][0] & $icmbTroopSetting, "0", "Int")
-		Assign("ichkPre" & $MySpells[$i][0], $tempPreSpell)
-		;IniReadS($MySpells[$i][1], $g_sProfileConfigPath, "MyTroops", $MySpells[$i][0] & "Order", $i + 1)
+		IniReadS($MySpellSetting[$j][$i][0], $g_sProfileConfigPath, "MySpells", $MySpells[$i][0] & $j, "0", "Int")
+		IniReadS($MySpellSetting[$j][$i][1], $g_sProfileConfigPath, "MySpells", $MySpells[$i][0] & "Pre" & $j, "0", "Int")
 	Next
-	IniReadS($iLightningSpellComp, $g_sProfileConfigPath, "Spells", "LightningSpell" & $icmbTroopSetting, "0","Int")
-	IniReadS($iRageSpellComp, $g_sProfileConfigPath, "Spells", "RageSpell" & $icmbTroopSetting, "0","Int")
-	IniReadS($iHealSpellComp, $g_sProfileConfigPath, "Spells", "HealSpell" & $icmbTroopSetting, "0","Int")
-	IniReadS($iJumpSpellComp, $g_sProfileConfigPath, "Spells", "JumpSpell" & $icmbTroopSetting, "0","Int")
-	IniReadS($iFreezeSpellComp, $g_sProfileConfigPath, "Spells", "FreezeSpell" & $icmbTroopSetting, "0","Int")
-	IniReadS($iCloneSpellComp, $g_sProfileConfigPath, "Spells", "CloneSpell" & $icmbTroopSetting, "0", "Int")
-	IniReadS($iPoisonSpellComp, $g_sProfileConfigPath, "Spells", "PoisonSpell" & $icmbTroopSetting, "0","Int")
-	IniReadS($iHasteSpellComp, $g_sProfileConfigPath, "Spells", "HasteSpell" & $icmbTroopSetting, "0","Int")
-	IniReadS($iEarthSpellComp, $g_sProfileConfigPath, "Spells", "EarthSpell" & $icmbTroopSetting, "0","Int")
-	IniReadS($iSkeletonSpellComp, $g_sProfileConfigPath, "Spells", "SkeletonSpell" & $icmbTroopSetting, "0", "Int")
-
-;~ For $i = 0 To UBound($MySpells) - 1
-;~ 	Local $tempPreSpell
-;~ 	IniReadS($tempPreSpell, $g_sProfileConfigPath, "MySpells", $MySpells[$i][0], "0", "Int")
-;~ 	Assign("ichkPre" & $MySpells[$i][0], $tempPreSpell)
-;~ 	;IniReadS($MySpells[$i][1], $g_sProfileConfigPath, "MyTroops", $MySpells[$i][0] & "Order", $i + 1)
-;~ Next
-
-;~ IniReadS($iLightningSpellComp, $g_sProfileConfigPath, "Spells", "LightningSpell", "0","Int")
-;~ IniReadS($iRageSpellComp, $g_sProfileConfigPath, "Spells", "RageSpell", "0","Int")
-;~ IniReadS($iHealSpellComp, $g_sProfileConfigPath, "Spells", "HealSpell", "0","Int")
-;~ IniReadS($iJumpSpellComp, $g_sProfileConfigPath, "Spells", "JumpSpell", "0","Int")
-;~ IniReadS($iFreezeSpellComp, $g_sProfileConfigPath, "Spells", "FreezeSpell", "0","Int")
-;~ IniReadS($iCloneSpellComp, $g_sProfileConfigPath, "Spells", "CloneSpell", "0", "Int")
-;~ IniReadS($iPoisonSpellComp, $g_sProfileConfigPath, "Spells", "PoisonSpell", "0","Int")
-;~ IniReadS($iHasteSpellComp, $g_sProfileConfigPath, "Spells", "HasteSpell", "0","Int")
-;~ IniReadS($iEarthSpellComp, $g_sProfileConfigPath, "Spells", "EarthSpell", "0","Int")
-;~ IniReadS($iSkeletonSpellComp, $g_sProfileConfigPath, "Spells", "SkeletonSpell", "0", "Int")
+Next
+For $i = 0 To UBound($MySpells) - 1
+	Assign("i" & $MySpells[$i][0] & "SpellComp",  $MySpellSetting[$icmbTroopSetting][$i][0])
+	Assign("ichkPre" & $MySpells[$i][0],  $MySpellSetting[$icmbTroopSetting][$i][1])
+Next
 
 ;$iTotalTrainSpaceSpell = 0
 ;For $i = 0 To 9

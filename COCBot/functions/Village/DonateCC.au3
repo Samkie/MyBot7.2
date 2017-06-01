@@ -148,7 +148,7 @@ Func DonateCC($Check = False)
 			Local $iTroopIndex = $g_aiDonateTroopPriority[$i]
 			Assign("canDon" & $g_asTroopNames[$iTroopIndex], False)
 		Next
-		$canDonCustomA =False
+		$canDonCustomA = False
 		$canDonCustomB = False
 		For $i = 0 To UBound($g_aiDonateSpellPriority) - 1
 			Local $iSpellIndex = $g_aiDonateSpellPriority[$i]
