@@ -607,6 +607,16 @@ Func runBot() ;Bot that runs everything in order
 			If $g_bAndroidEmbedded = False Then
 				btnEmbed()
 			EndIf
+		Else
+			; samm0d - auto hide emulator
+			If $g_bChkAutoHideEmulator Then
+				If $g_bFlagHideEmulator = False Then
+					If $g_bIsHidden = False Then
+						btnHide()
+						$g_bFlagHideEmulator = True
+					EndIf
+				EndIf
+			EndIf
 		EndIf
 
 		;Check for debug wait command

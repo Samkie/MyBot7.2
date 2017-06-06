@@ -35,7 +35,7 @@ Global $ichkDropCCFirst = 0
 ; auto hide emulator, minimize bot after start
 Global $chkAutoHideEmulator, $chkAutoMinimizeBot
 Global $g_bChkAutoHideEmulator = False
-;Global $g_bFlagHideEmulator = False
+Global $g_bFlagHideEmulator = False
 Global $g_bChkAutoMinimizeBot = False
 Global $g_bFlagMinimizeBot = False
 

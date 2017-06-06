@@ -941,17 +941,8 @@ Func RestartAndroidCoC($bInitAndroid = True, $bRestart = True)
 	; reset time lag
 	InitAndroidTimeLag()
 
-	; samm0d - auto hide emulator
-	If $ichkAutoDock = 0 Then
-		If $g_bChkAutoHideEmulator Then
-;~ 			If $g_bFlagHideEmulator = False Then
-				If $g_bIsHidden = False Then
-					btnHide()
-;~ 					$g_bFlagHideEmulator = True
-				EndIf
-;~ 			EndIf
-		EndIf
-	EndIf
+	; samm0d - reset flag of auto hide emulator
+	$g_bFlagHideEmulator = False
 
 	Return True
 EndFunc   ;==>RestartAndroidCoC
