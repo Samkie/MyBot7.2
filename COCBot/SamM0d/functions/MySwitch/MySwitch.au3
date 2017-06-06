@@ -396,12 +396,20 @@ Func DoSwitchAcc()
 		$iDoPerformAfterSwitch = True
 	Else
 		If $iDoPerformAfterSwitch Then
-			SetLog("Check train before switch account...",$COLOR_ACTION)
-			If $ichkCustomTrain = 1 Then
-				CustomTrain()
-			Else
-				TrainRevamp()
-			EndIf
+			For $i = 0 To UBound($aSwitchList) - 1
+				If $aSwitchList[$i][4] = $iCurActiveAcc Then
+					If $aSwitchList[$i][2] <> 1 Then
+						If $g_bIsFullArmywithHeroesAndSpells Then ;If $g_bIsFullArmywithHeroesAndSpells = True mean just back from attack, then we check train before switch acc.
+							SetLog("Check train before switch account...",$COLOR_ACTION)
+							If $ichkCustomTrain = 1 Then
+								CustomTrain()
+							Else
+								TrainRevamp()
+							EndIf
+						EndIf
+					EndIf
+				EndIf
+			Next
 		EndIf
 	EndIf
 
@@ -482,9 +490,9 @@ Func DoSwitchAcc()
 		$bChangeNextAcc = True
 	EndIf
 
-	If $g_bCloseWhileTrainingEnable = 1 Then
+	If $g_bCloseWhileTrainingEnable Then
 		SetLog("Disable smart wait")
-		$g_bCloseWhileTrainingEnable = 0
+		$g_bCloseWhileTrainingEnable = False
 	EndIf
 
 	ClickP($aAway,1,0)

@@ -602,7 +602,6 @@ Func runBot() ;Bot that runs everything in order
 
 	While 1
 		; samm0d
-
 		If $iSamM0dDebug And $g_bRestart Then SetLog("Continue loop with restart", $COLOR_DEBUG)
 		If $ichkAutoDock = 1 Then
 			If $g_bAndroidEmbedded = False Then
@@ -695,7 +694,9 @@ Func runBot() ;Bot that runs everything in order
 			If $g_bRunState = False Then Return
 			If $g_bRestart = True Then ContinueLoop
 			If IsSearchAttackEnabled() Then ; if attack is disabled skip reporting, requesting, donating, training, and boosting
-				Local $aRndFuncList = ['ReplayShare', 'NotifyReport', 'DonateCC,Train', 'BoostBarracks', 'BoostSpellFactory', 'BoostKing', 'BoostQueen', 'BoostWarden', 'RequestCC']
+				;Local $aRndFuncList = ['ReplayShare', 'NotifyReport', 'DonateCC,Train', 'BoostBarracks', 'BoostSpellFactory', 'BoostKing', 'BoostQueen', 'BoostWarden', 'RequestCC']
+				; samm0d - ignore request cc, since later when train army will be apply request cc.
+				Local $aRndFuncList = ['ReplayShare', 'NotifyReport', 'DonateCC,Train', 'BoostBarracks', 'BoostSpellFactory', 'BoostKing', 'BoostQueen', 'BoostWarden']
 				While 1
 					If $g_bRunState = False Then Return
 					If $g_bRestart = True Then ContinueLoop 2 ; must be level 2 due to loop-in-loop
@@ -851,10 +852,10 @@ Func Idle() ;Sequence that runs until Full Army
 
 		; samm0d
 		If $ichkCustomTrain = 0 Then
-			If ($g_iCommandStop = 3 Or $g_iCommandStop = 0) Then
+			If ($g_iCommandStop = 3 Or $g_iCommandStop = 0) And $g_bTrainEnabled = True Then
 				CheckArmyCamp(True, True)
-				If _Sleep(200) Then Return
-				If ($g_bfullArmy = False Or $g_bFullArmySpells = False) And $g_bTrainEnabled = True Then
+				If _Sleep($DELAYIDLE1) Then Return
+				If ($g_bFullArmy = False Or $g_bFullArmySpells = False) Then
 					SetLog("Army Camp and Barracks are not full, Training Continues...", $COLOR_ACTION)
 					$g_iCommandStop = 0
 				EndIf
@@ -973,6 +974,7 @@ Func Idle() ;Sequence that runs until Full Army
 				$g_bRestart = True
 				ExitLoop
 			Else
+				; if donate type acc, perform switch account too
 				If $iCurActiveAcc <> -1 Then
 					For $i = 0 To UBound($aSwitchList) - 1
 						If $aSwitchList[$i][4] = $iCurActiveAcc Then

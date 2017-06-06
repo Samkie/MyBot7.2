@@ -275,24 +275,24 @@ Func btnTestTrain()
 ;~ 	getArmyHeroCount()
 ;~ 	If _Sleep(50) Then Return ; 10ms improve pause button response
 
- 	_ArrayDisplay($MyTroops)
+;~  	_ArrayDisplay($MyTroops)
 
 
-;~ 	BeginImageTest()
+	BeginImageTest()
 
-;~ 	Local $result
-;~ 	SetLog("Testing checkArmyCamp()", $COLOR_INFO)
-;~ 	$result = checkArmyCamp()
-;~ 	If @error Then $result = "Error " & @error & ", " & @extended & ", " & ((IsArray($result)) ? (_ArrayToString($result, ",")) : ($result))
-;~ 	SetLog("Result checkArmyCamp() = " & $result, $COLOR_INFO)
+	Local $result
+	SetLog("Testing checkArmyCamp()", $COLOR_INFO)
+	$result = checkArmyCamp()
+	If @error Then $result = "Error " & @error & ", " & @extended & ", " & ((IsArray($result)) ? (_ArrayToString($result, ",")) : ($result))
+	SetLog("Result checkArmyCamp() = " & $result, $COLOR_INFO)
 
-;~ 	SetLog("Testing getArmyHeroTime()", $COLOR_INFO)
-;~ 	$result = getArmyHeroTime("all")
-;~ 	If @error Then $result = "Error " & @error & ", " & @extended & ", " & ((IsArray($result)) ? (_ArrayToString($result, ",")) : ($result))
-;~ 	SetLog("Result getArmyHeroTime() = " & $result, $COLOR_INFO)
-;~ 	SetLog("Testing Train DONE", $COLOR_INFO)
+	SetLog("Testing getArmyHeroTime()", $COLOR_INFO)
+	$result = getArmyHeroTime("all")
+	If @error Then $result = "Error " & @error & ", " & @extended & ", " & ((IsArray($result)) ? (_ArrayToString($result, ",")) : ($result))
+	SetLog("Result getArmyHeroTime() = " & $result, $COLOR_INFO)
+	SetLog("Testing Train DONE", $COLOR_INFO)
 
-;~ 	EndImageTest()
+	EndImageTest()
 
 	$g_iDebugOcr = $currentOCR
 	$g_bRunState = $currentRunState

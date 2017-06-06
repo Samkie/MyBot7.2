@@ -622,6 +622,19 @@ $chkAutoDock = GUICtrlCreateCheckbox(GetTranslatedFileIni("sam m0d", 97, "Auto d
 	GUICtrlSetOnEvent(-1, "chkAutoDock")
 	GUICtrlSetState(-1, $GUI_UNCHECKED)
 
+$x = 10
+$y += 25
+$chkAutoHideEmulator = GUICtrlCreateCheckbox(GetTranslatedFileIni("sam m0d", "Auto Hide Emulator", "Auto hide emulator after start"), $x+10, $y, -1, -1)
+	GUICtrlSetOnEvent(-1, "chkAutoHideEmulator")
+	GUICtrlSetState(-1, $GUI_UNCHECKED)
+
+$x = 10
+$y += 25
+$chkAutoMinimizeBot = GUICtrlCreateCheckbox(GetTranslatedFileIni("sam m0d", "Auto Minimize Bot", "Auto minimize bot after start"), $x+10, $y, -1, -1)
+	GUICtrlSetOnEvent(-1, "chkAutoMinimizeBot")
+	GUICtrlSetState(-1, $GUI_UNCHECKED)
+
+
 GUICtrlCreateGroup("", -99, -99, 1, 1)
 
 

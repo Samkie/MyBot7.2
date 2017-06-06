@@ -84,7 +84,7 @@ Func SmartWait4Train()
 
 	;====samm0d======
 	;avoid click train windows if we don't need close game or emulator without shield
-	If $g_asShieldStatus[0] = "none" And ($g_bCloseWithoutShield = False Or IsWaitforSpellsActive() Or IsWaitforHeroesActive()) Then Return ; skip if not on shield and other options not selected
+	If $g_asShieldStatus[0] = "none" And $g_bCloseWithoutShield = False Then Return ; skip if not on shield and other options not selected
 	;================
 
 	Local $result = OpenArmyWindow() ; Open train overview

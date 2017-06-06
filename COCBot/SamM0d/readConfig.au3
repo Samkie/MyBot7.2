@@ -85,6 +85,9 @@ $ichkEnableCustomOCR4CCRequest = IniRead($g_sProfileConfigPath, "GetMyOcr", "Ena
 ; auto dock
 $ichkAutoDock = IniRead($g_sProfileConfigPath, "AutoDock", "Enable", "0")
 
+IniReadS($g_bChkAutoHideEmulator, $g_sProfileConfigPath, "AutoHideEmulator", "Enable", False, "Bool")
+IniReadS($g_bChkAutoMinimizeBot, $g_sProfileConfigPath, "AutoMinimizeBot", "Enable", False, "Bool")
+
 ; CSV Deployment Speed Mod
 IniReadS($isldSelectedCSVSpeed[$DB], $g_sProfileConfigPath, "attack", "CSVSpeedDB", 3)
 IniReadS($isldSelectedCSVSpeed[$LB], $g_sProfileConfigPath, "attack", "CSVSpeedAB", 3)

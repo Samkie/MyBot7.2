@@ -179,6 +179,19 @@ Else
 	GUICtrlSetState($chkAutoDock, $GUI_UNCHECKED)
 EndIf
 
+If $g_bChkAutoHideEmulator Then
+	GUICtrlSetState($chkAutoHideEmulator, $GUI_CHECKED)
+Else
+	GUICtrlSetState($chkAutoHideEmulator, $GUI_UNCHECKED)
+EndIf
+
+If $g_bChkAutoMinimizeBot Then
+	GUICtrlSetState($chkAutoMinimizeBot, $GUI_CHECKED)
+Else
+	GUICtrlSetState($chkAutoMinimizeBot, $GUI_UNCHECKED)
+EndIf
+
+
 ; CSV Deployment Speed Mod
 GUICtrlSetData($sldSelectedSpeedDB, $isldSelectedCSVSpeed[$DB])
 GUICtrlSetData($sldSelectedSpeedAB, $isldSelectedCSVSpeed[$LB])

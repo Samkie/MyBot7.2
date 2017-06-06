@@ -192,8 +192,32 @@ EndFunc
 Func chkAutoDock()
 	If GUICtrlRead($chkAutoDock) = $GUI_CHECKED Then
 		$ichkAutoDock = 1
+		If $g_bChkAutoHideEmulator Then
+			$g_bChkAutoHideEmulator = False
+			GUICtrlSetState($chkAutoHideEmulator, $GUI_UNCHECKED)
+		EndIf
 	Else
 		$ichkAutoDock = 0
+	EndIf
+EndFunc
+
+Func chkAutoHideEmulator()
+	If GUICtrlRead($chkAutoHideEmulator) = $GUI_CHECKED Then
+		$g_bChkAutoHideEmulator = True
+		If $ichkAutoDock Then
+			$ichkAutoDock = 0
+			GUICtrlSetState($chkAutoDock, $GUI_UNCHECKED)
+		EndIf
+	Else
+		$g_bChkAutoHideEmulator = False
+	EndIf
+EndFunc
+
+Func chkAutoMinimizeBot()
+	If GUICtrlRead($chkAutoMinimizeBot) = $GUI_CHECKED Then
+		$g_bChkAutoMinimizeBot = True
+	Else
+		$g_bChkAutoMinimizeBot = False
 	EndIf
 EndFunc
 

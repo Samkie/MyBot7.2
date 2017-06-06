@@ -163,6 +163,18 @@ Else
 	IniWrite($g_sProfileConfigPath, "AutoDock", "Enable", 0)
 EndIf
 
+If GUICtrlRead($chkAutoHideEmulator) = $GUI_CHECKED Then
+	IniWrite($g_sProfileConfigPath, "AutoHideEmulator", "Enable", True)
+Else
+	IniWrite($g_sProfileConfigPath, "AutoHideEmulator", "Enable", False)
+EndIf
+
+If GUICtrlRead($chkAutoMinimizeBot) = $GUI_CHECKED Then
+	IniWrite($g_sProfileConfigPath, "AutoMinimizeBot", "Enable", True)
+Else
+	IniWrite($g_sProfileConfigPath, "AutoMinimizeBot", "Enable", False)
+EndIf
+
 
 IniWriteS($g_sProfileConfigPath, "AU4Wall", "ClickWallDelay", GUICtrlRead($txtClickWallDelay))
 IniWriteS($g_sProfileConfigPath, "AU4Wall", "BaseNodeX", $aBaseNode[0])

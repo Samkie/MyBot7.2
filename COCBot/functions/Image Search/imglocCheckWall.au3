@@ -50,12 +50,11 @@ Func imglocCheckWall()
 		Local $aResult
 
 		For $i=0 to ubound($FoundWalls)-1
-			SetLog("$FoundWalls[" & $i & "]: " & $FoundWalls[$i])
-
+			If $g_iDebugSetlog = 1 Then SetLog("$FoundWalls[" & $i & "]: " & $FoundWalls[$i])
 			Local $WallCoordsArray = StringSplit($FoundWalls[$i], "|", $STR_NOCOUNT)
 
 			for $fc = 0 to ubound( $WallCoordsArray)-1
-				SetLog("$WallCoordsArray: " & $WallCoordsArray[$fc])
+				If $g_iDebugSetlog = 1 Then SetLog("$WallCoordsArray: " & $WallCoordsArray[$fc])
 				If $WallCoordsArray[$fc] <> "" Then
 				Local $aCoord = StringSplit($WallCoordsArray[$fc],",",$STR_NOCOUNT )
 				SetLog("Found: " & $FoundWalls[$i] & " possible Wall position: " & $WallCoordsArray[$fc], $COLOR_SUCCESS)
