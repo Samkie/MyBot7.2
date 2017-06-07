@@ -1190,7 +1190,7 @@ Func DetectSlotTroop(Const $iTroopIndex)
 		$FullTemp = SearchImgloc(@ScriptDir & "\imgxml\DonateCC\Troops\", $x, $y, $x1, $y1)
 		If $g_iDebugSetlog = 1 Then Setlog("Troop Slot: " & $Slot & " SearchImgloc returned:" & $FullTemp[0] & ".", $COLOR_DEBUG)
 
-		If StringInStr($FullTemp[0] & " ", "empty") > 0 Then ExitLoop
+		;If StringInStr($FullTemp[0] & " ", "empty") > 0 Then ExitLoop
 
 		If $FullTemp[0] <> "" Then
 			For $i = $eTroopBarbarian To $eTroopBowler
@@ -1217,7 +1217,7 @@ Func DetectSlotTroop(Const $iTroopIndex)
 		$FullTemp = SearchImgloc(@ScriptDir & "\imgxml\DonateCC\Troops\", $x, $y, $x1, $y1)
 		If $g_iDebugSetlog = 1 Then Setlog("Troop Slot: " & $Slot & " SearchImgloc returned:" & $FullTemp[0] & ".", $COLOR_DEBUG)
 
-		If StringInStr($FullTemp[0] & " ", "empty") > 0 Then ExitLoop
+		;If StringInStr($FullTemp[0] & " ", "empty") > 0 Then ExitLoop
 
 		If $FullTemp[0] <> "" Then
 			For $i = $eTroopBalloon To $eTroopBowler
@@ -1251,7 +1251,7 @@ Func DetectSlotSpell(Const $iSpellIndex)
 		$FullTemp = SearchImgloc(@ScriptDir & "\imgxml\DonateCC\Spells\", $x, $y, $x1, $y1)
 		If $g_iDebugSetlog = 1 Then Setlog("Spell Slot: " & $Slot & " SearchImgloc returned:" & $FullTemp[0] & ".", $COLOR_DEBUG)
 
-		If StringInStr($FullTemp[0] & " ", "empty") > 0 Then ExitLoop
+		;If StringInStr($FullTemp[0] & " ", "empty") > 0 Then ExitLoop
 
 		If $FullTemp[0] <> "" Then
 			For $i = $eSpellLightning To $eSpellSkeleton
