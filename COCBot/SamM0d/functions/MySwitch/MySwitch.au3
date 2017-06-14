@@ -1011,25 +1011,31 @@ Func btnMakeSwitchADBFolder()
 			$lResult = RunWait($g_sAndroidAdbPath & " -s " & $g_sAndroidAdbDevice & " pull /data/data/" & $g_sAndroidGamePackage & "/shared_prefs " & $sMyProfilePath4shared_prefs, "", @SW_HIDE)
 		EndIf
 
-		If $lResult = 0 Then
-			Local $bFileFlag = 0
-			Local $bshared_prefs_file = False
-			Local $bVillagePng = False
-			If FileExists($sMyProfilePath4shared_prefs & "\HSJsonData.xml") Then $bFileFlag = BitOR($bFileFlag, 1)
-			If FileExists(@ScriptDir & "\profiles\" & $g_sProfileCurrentName & "\village_92.png") Then $bFileFlag = BitOR($bFileFlag, 2)
+		If @error Then
+			MsgBox($MB_SYSTEMMODAL, "", "Failed to run adb command.")
+		Else
+			If $lResult = 0 Then
+				Local $bFileFlag = 0
+				Local $bshared_prefs_file = False
+				Local $bVillagePng = False
+				If FileExists($sMyProfilePath4shared_prefs & "\HSJsonData.xml") Then $bFileFlag = BitOR($bFileFlag, 1)
+				If FileExists(@ScriptDir & "\profiles\" & $g_sProfileCurrentName & "\village_92.png") Then $bFileFlag = BitOR($bFileFlag, 2)
 
-			;If FileExists($sMyProfilePath4shared_prefs & "\localPrefs.xml") Then FileDelete($sMyProfilePath4shared_prefs & "\localPrefs.xml")
+				;If FileExists($sMyProfilePath4shared_prefs & "\localPrefs.xml") Then FileDelete($sMyProfilePath4shared_prefs & "\localPrefs.xml")
 
-			Switch $bFileFlag
-				Case 3
-					MsgBox($MB_SYSTEMMODAL, "", "Sucess: shared_prefs copied and village_92.png captured.")
-				Case 2
-					MsgBox($MB_SYSTEMMODAL, "", "Failed to copy shared_prefs from emulator, but village_92.png captured.")
-				Case 1
-					MsgBox($MB_SYSTEMMODAL, "", "Failed to capture village_92.png from emulator, but shared_prefs copied.")
-				Case Else
-					MsgBox($MB_SYSTEMMODAL, "", "Failed to copy shared_prefs and capture village_92.png from emulator.")
-			EndSwitch
+				Switch $bFileFlag
+					Case 3
+						MsgBox($MB_SYSTEMMODAL, "", "Sucess: shared_prefs copied and village_92.png captured.")
+					Case 2
+						MsgBox($MB_SYSTEMMODAL, "", "Failed to copy shared_prefs from emulator, but village_92.png captured.")
+					Case 1
+						MsgBox($MB_SYSTEMMODAL, "", "Failed to capture village_92.png from emulator, but shared_prefs copied.")
+					Case Else
+						MsgBox($MB_SYSTEMMODAL, "", "Failed to copy shared_prefs and capture village_92.png from emulator.")
+				EndSwitch
+			Else
+				MsgBox($MB_SYSTEMMODAL, "", "Failed to run operate adb command.")
+			EndIf
 		EndIf
 	Else
 		MsgBox($MB_SYSTEMMODAL, "", "Please open emulator and coc, then go to profile page before doing this action.")
