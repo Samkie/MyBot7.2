@@ -457,20 +457,25 @@ Func AttackNowLB()
 	$g_sAttackScrScriptName[$LB] = GuiCtrlRead($g_hCmbScriptNameAB)		; Select Scripted Attack File From The Combo Box, Cos it wasn't refreshing until pressing Start button
 	$g_bRunState = True
 
+	ResetTHsearch()
+
 	ForceCaptureRegion()
 	_CaptureRegion2()
 
-	If CheckZoomOut("VillageSearch", True, False) = False Then
+	If CheckZoomOut2("VillageSearch", True, False) = False Then
 		$i = 0
 		Local $bMeasured
 		Do
 			$i += 1
-			If _Sleep(500) Then Return ; wait 500 ms
+			If _Sleep($DELAYPREPARESEARCH2) Then Return ; wait 500 ms
 			ForceCaptureRegion()
-			$bMeasured = CheckZoomOut("VillageSearch", $i < 2, True)
+			_CaptureRegion2()
+			$bMeasured = CheckZoomOut2("VillageSearch", $i < 2, False)
 		Until $bMeasured = True Or $i >= 2
 		If $bMeasured = False Then Return ; exit func
 	EndIf
+
+	FindTownhall(True)
 
 	PrepareAttack($g_iMatchMode)			; lol I think it's not needed for Scripted attack, But i just Used this to be sure of my code
 	Attack()			; Fire xD
@@ -483,22 +488,43 @@ Func AttackNowDB()
 	$g_aiAttackAlgorithm[$DB] = 1			; Select Scripted Attack
 	$g_sAttackScrScriptName[$DB] = GuiCtrlRead($g_hCmbScriptNameDB)		; Select Scripted Attack File From The Combo Box, Cos it wasn't refreshing until pressing Start button
 	$g_bRunState = True
+
+	ResetTHsearch()
+
 	ForceCaptureRegion()
 	_CaptureRegion2()
 
-	If CheckZoomOut("VillageSearch", True, False) = False Then
+	If CheckZoomOut2("VillageSearch", True, False) = False Then
 		$i = 0
 		Local $bMeasured
 		Do
 			$i += 1
-			If _Sleep(500) Then Return ; wait 500 ms
+			If _Sleep($DELAYPREPARESEARCH2) Then Return ; wait 500 ms
 			ForceCaptureRegion()
-			$bMeasured = CheckZoomOut("VillageSearch", $i < 2, True)
+			_CaptureRegion2()
+			$bMeasured = CheckZoomOut2("VillageSearch", $i < 2, False)
 		Until $bMeasured = True Or $i >= 2
 		If $bMeasured = False Then Return ; exit func
 	EndIf
+
+	FindTownhall(True)
 
 	PrepareAttack($g_iMatchMode)			; lol I think it's not needed for Scripted attack, But i just Used this to be sure of my code
 	Attack()			; Fire xD
 	Setlog("End Dead Base Attack TEST")
 EndFunc   ;==>AttackNowLB
+
+Func CheckZoomOut2($sSource = "CheckZoomOut", $bCheckOnly = False, $bForecCapture = True)
+	If $bForecCapture = True Then
+		_CaptureRegion2()
+	EndIf
+	Local $aVillageResult = SearchZoomOut(False, True, $sSource, False)
+	If IsArray($aVillageResult) = 0 Or $aVillageResult[0] = "" Then
+		; not zoomed out, Return
+		If $bCheckOnly = False Then
+			SetLog("Not Zoomed Out! Exit TEST", $COLOR_ERROR)
+		EndIf
+		Return False
+	EndIf
+	Return True
+EndFunc   ;==>CheckZoomOut2

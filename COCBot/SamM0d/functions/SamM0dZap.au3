@@ -91,10 +91,10 @@ Func SamM0dZap()
 		Return $performedZap
 	Else
 		If $aSpells[0][4] > 0 Then
-			SetLog(" - Number of " & NameOfTroop($aSpells[0][1], 1) & " (Lvl " & $aSpells[0][3] & "): " & Number($aSpells[0][4]), $COLOR_INFO)
+			SetLog(" - Number of " & NameOfTroop($aSpells[0][1], 1) & ": " & Number($aSpells[0][4]), $COLOR_INFO)
 		EndIf
 		If $aSpells[1][4] > 0 Then
-			SetLog(" - Number of Donated " & NameOfTroop($aSpells[1][1], 1) & " (Lvl " & $aSpells[1][3] & "): " & Number($aSpells[1][4]), $COLOR_INFO)
+			SetLog(" - Number of Donated " & NameOfTroop($aSpells[1][1], 1) & ": " & Number($aSpells[1][4]), $COLOR_INFO)
 		EndIf
 		$numSpells = $aSpells[0][4] + $aSpells[1][4]
 	EndIf

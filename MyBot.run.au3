@@ -566,6 +566,14 @@ Func MainLoop()
 		$g_iBotAction = $eBotStart
 	EndIf
 
+	; samm0d - auto minimize bot
+	If $g_bChkAutoMinimizeBot Then
+		If $g_bFlagMinimizeBot = False Then
+			$g_bFlagMinimizeBot = True
+			WinSetState($g_hFrmBot, "", @SW_MINIMIZE)
+		EndIf
+	EndIf
+
 	While 1
 		_Sleep($DELAYSLEEP, True, False)
 

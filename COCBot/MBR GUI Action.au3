@@ -71,14 +71,6 @@ Func BotStart($bAutostartDelay = 0)
 
 	SetRedrawBotWindow(True, Default, Default, Default, "BotStart")
 
-	; samm0d - auto minimize bot
-	If $g_bChkAutoMinimizeBot Then
-		If $g_bFlagMinimizeBot = False Then
-			$g_bFlagMinimizeBot = True
-			WinSetState($g_hFrmBot, "", @SW_MINIMIZE)
-		EndIf
-	EndIf
-
 	If $bAutostartDelay Then
 		SetLog("Bot Auto Starting in " & Round($bAutostartDelay / 1000, 0) & " seconds", $COLOR_ERROR)
 		_SleepStatus($bAutostartDelay)
