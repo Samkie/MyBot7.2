@@ -291,7 +291,7 @@ Func CustomSpells()
 						$iCost = $MySpells[$i][4]
 						If $g_iDebugSetlogTrain = 1 Then SetLog("$iCost: " & $iCost)
 
-						Local $iBuildCost = ($i > 5 ? getMyOcrCurDEFromTrain() : getMyOcrCurGoldFromTrain())
+						Local $iBuildCost = ($i > 5 ? getMyOcrCurDEFromTrain() : getMyOcrCurElixirFromTrain())
 
 						If $g_iDebugSetlogTrain = 1 Then SetLog("$BuildCost: " & $iBuildCost)
 						If $g_iDebugSetlogTrain = 1 Then SetLog("Total need: " & ($tempSpell * $iCost))

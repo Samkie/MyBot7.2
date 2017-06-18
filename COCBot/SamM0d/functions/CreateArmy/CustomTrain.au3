@@ -474,7 +474,7 @@ Func DoCheckReVamp($bDoFullTrain = False)
 					$iCost = $tempTroops[$i][4]
 					If $g_iDebugSetlogTrain = 1 Then SetLog("$iCost: " & $iCost)
 
-					Local $iBuildCost = (Eval("e" & $tempTroops[$i][0]) > 11 ? getMyOcrCurDEFromTrain() : getMyOcrCurGoldFromTrain())
+					Local $iBuildCost = (Eval("e" & $tempTroops[$i][0]) > 11 ? getMyOcrCurDEFromTrain() : getMyOcrCurElixirFromTrain())
 					If $g_iDebugSetlogTrain = 1 Then SetLog("$iBuildCost: " & $iBuildCost)
 					If $g_iDebugSetlogTrain = 1 Then SetLog("Total need: " & ($Troop4Add * $iCost))
 					If ($Troop4Add * $iCost) > $iBuildCost Then

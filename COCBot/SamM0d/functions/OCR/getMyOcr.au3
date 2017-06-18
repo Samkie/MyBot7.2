@@ -1,5 +1,5 @@
 ; #FUNCTION# ====================================================================================================================
-; Name ..........: getMyOcr(BETA) 0.4
+; Name ..........: getMyOcr(BETA) 0.5
 ; Description ...: Reading characters using ImgLoc
 ; Syntax ........: getMyOcr($x,$y,$width,$height,$bReturnAsNumber,$OCRType,$bFlagDecode)
 ; Parameters ....: $x     					-
@@ -11,7 +11,7 @@
 ;                  $bFlagDecode             - is that need decode from config.ini
 ;				   $bFlagMulti	            - when use more than 1 image for determine one character.
 ; Return values .: String Or Number base on character images found.
-; Author ........: Samkie (27 Nov 2016)
+; Author ........: Samkie (17 JUN 2017)
 ; Remarks .......: This file is part of MyBot, previously known as ClashGameBot. Copyright 2015-2016
 ;                  MyBot is distributed under the terms of the GNU GPL
 ; Related .......:
@@ -162,8 +162,11 @@ Func getMyOcrCurDEFromTrain()
 	Return $sResult
 EndFunc
 
-Func getMyOcrCurGoldFromTrain()
+Func getMyOcrCurElixirFromTrain()
 	; current gold from train troops page or brew spell page, bottom center
-	Local $sResult = getMyOcr(230,566 + $g_iMidOffsetY,102,15,"spellqtybrew",True)
-	Return $sResult
+	If _ColorCheck(_GetPixelColor(217,600,True), Hex(0XE8E8E0, 6), 10) Then ; If True mean the current village don't had dark elixir yet
+		Return getMyOcr(304,566 + $g_iMidOffsetY,102,15,"spellqtybrew",True)
+	Else
+		Return getMyOcr(230,566 + $g_iMidOffsetY,102,15,"spellqtybrew",True)
+	EndIf
 EndFunc

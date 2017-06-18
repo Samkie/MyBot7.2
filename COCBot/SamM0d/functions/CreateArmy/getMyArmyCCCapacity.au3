@@ -44,9 +44,10 @@ Func getArmyCCCapacity($bOpenArmyWindow = False, $bCloseArmyWindow = False)
 		$iTried += 1
 		If _Sleep(500) Then Return ; Wait 250ms before reading again
 		$sCCInfo = getMyOcrCCCap() ; OCR read army trained and total
-		If $g_iDebugSetlogTrain = 1 Then Setlog("OCR $sCCInfo = " & $sCCInfo, $COLOR_DEBUG)
-		If StringInStr($sCCInfo, "#", 0, 1) < 2 Then ContinueLoop ; In case the CC donations recieved msg are blocking, need to keep checking numbers till valid
 
+		If $g_iDebugSetlogTrain = 1 Then Setlog("OCR $sCCInfo = " & $sCCInfo, $COLOR_DEBUG)
+		;If StringInStr($sCCInfo, "#", 0, 1) < 2 Then ContinueLoop ; In case the CC donations recieved msg are blocking, need to keep checking numbers till valid
+		If $sCCInfo = "" Then $iTried = 100
 		$aGetArmySize = StringSplit($sCCInfo, "#") ; split the trained troop number from the total troop number
 		If IsArray($aGetArmySize) Then
 			If $aGetArmySize[0] > 1 Then ; check if the OCR was valid and returned both values
@@ -72,11 +73,15 @@ Func getArmyCCCapacity($bOpenArmyWindow = False, $bCloseArmyWindow = False)
 		Setlog("CC size read error...", $COLOR_ERROR) ; log if there is read error
 		$CurCCCamp = 0
 		$CurTotalCCCamp = 0
+		$FullCCTroops = True
+		If $ichkWait4CC = 1 Then $FullCCTroops = False
+		If ($g_abAttackTypeEnable[$DB] And $g_abSearchCastleTroopsWaitEnable[$DB]) Or ($g_abAttackTypeEnable[$LB] And $g_abSearchCastleTroopsWaitEnable[$LB]) Then
+			$FullCCTroops = False
+		EndIf
 		Return
 	EndIf
 
 	If _Sleep(500) Then Return
-
 
 	$CCCapacity = Int($CurCCCamp / $CurTotalCCCamp * 100)
 	SetLog("Clan Castle troops: " & $CurCCCamp & "/" & $CurTotalCCCamp & " (" & $CCCapacity & "%)")
