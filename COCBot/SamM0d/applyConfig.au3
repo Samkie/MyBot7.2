@@ -58,7 +58,10 @@ Else
 	GUICtrlSetState($chkSmartZapSaveHeroes, $GUI_UNCHECKED)
 EndIf
 
-GUICtrlSetData($txtMinDark, $itxtMinDE)
+If $itxtMinDE <= 0 Then
+	$itxtMinDE = 400
+EndIf
+GUICtrlSetData($txtMinDark2, $itxtMinDE)
 
 ; samm0d zap
 If $ichkSmartZapRnd = 1 Then

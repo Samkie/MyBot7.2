@@ -53,7 +53,7 @@ Else
 	IniWrite($g_sProfileConfigPath, "SmartZap", "THSnipeSaveHeroes", 0)
 EndIf
 
-IniWrite($g_sProfileConfigPath, "SmartZap", "MinDE", GUICtrlRead($txtMinDark))
+IniWrite($g_sProfileConfigPath, "SmartZap", "MinDE", GUICtrlRead($txtMinDark2))
 
 ; samm0d zap
 If GUICtrlRead($chkSmartZapRnd) = $GUI_CHECKED Then

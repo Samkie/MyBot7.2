@@ -33,7 +33,7 @@ $ichkUseSamM0dZap = IniRead($g_sProfileConfigPath, "Zap", "SamM0dZap", "1")
 
 $ichkSmartZapDB = IniRead($g_sProfileConfigPath, "SmartZap", "ZapDBOnly", "1")
 $ichkSmartZapSaveHeroes = IniRead($g_sProfileConfigPath, "SmartZap", "THSnipeSaveHeroes", "1")
-$itxtMinDE = IniRead($g_sProfileConfigPath, "SmartZap", "MinDE", "300")
+$itxtMinDE = IniRead($g_sProfileConfigPath, "SmartZap", "MinDE", "400")
 
 ; samm0d zap
 $ichkSmartZapRnd = IniRead($g_sProfileConfigPath, "SamM0dZap", "UseSmartZapRnd", "1")
