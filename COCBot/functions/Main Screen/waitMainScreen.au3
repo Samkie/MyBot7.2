@@ -44,6 +44,7 @@ Func waitMainScreen() ;Waits for main screen to popup
 		ElseIf _CheckPixel($aIsDPI150, $g_bNoCapturePixel) = True Then
 			ShowDPIHelp(150)
 		Else
+
 			If TestCapture() = False And _Sleep($DELAYWAITMAINSCREEN1) Then Return
 			If checkObstacles() Then $i = 0 ;See if there is anything in the way of mainscreen
 		EndIf

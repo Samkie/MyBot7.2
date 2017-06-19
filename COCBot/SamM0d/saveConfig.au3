@@ -248,6 +248,7 @@ Else
 	IniWriteS($g_sProfileConfigPath, "MyTroops", "Order", 0)
 EndIf
 
+
 ;IniWrite($g_sProfileConfigPath, "COCVer", "CoCVersion", _GUICtrlComboBox_GetCurSel($cmbCoCVersion))
 
 IniWriteS($g_sProfileConfigPath, "MyTroops", "TrainCombo", _GUICtrlComboBox_GetCurSel($cmbMyQuickTrain))
@@ -255,7 +256,6 @@ IniWriteS($g_sProfileConfigPath, "MyTroops", "TrainCombo", _GUICtrlComboBox_GetC
 Local $itempcmbTroopSetting = _GUICtrlComboBox_GetCurSel($cmbTroopSetting)
 
 IniWriteS($g_sProfileConfigPath, "MyTroops", "Composition", $itempcmbTroopSetting)
-
 
 cmbTroopSetting()
 
@@ -266,9 +266,28 @@ For $j = 0 To 2
 	Next
 Next
 
+If GUICtrlRead($chkEnableDeleteExcessSpells) = $GUI_CHECKED Then
+	IniWriteS($g_sProfileConfigPath, "MySpells", "DeleteExcess", 1)
+Else
+	IniWriteS($g_sProfileConfigPath, "MySpells", "DeleteExcess", 0)
+EndIf
+
+If GUICtrlRead($chkForcePreBrewSpell) = $GUI_CHECKED Then
+	IniWriteS($g_sProfileConfigPath, "MySpells", "ForcePreBrewSpell", 1)
+Else
+	IniWriteS($g_sProfileConfigPath, "MySpells", "ForcePreBrewSpell", 0)
+EndIf
+
+If GUICtrlRead($chkMySpellsOrder) = $GUI_CHECKED Then
+	IniWriteS($g_sProfileConfigPath, "MySpells", "Order", 1)
+Else
+	IniWriteS($g_sProfileConfigPath, "MySpells", "Order", 0)
+EndIf
+
 For $j = 0 To 2
 	For $i = 0 To UBound($MySpells) - 1
 		IniWriteS($g_sProfileConfigPath, "MySpells", $MySpells[$i][0] & $j, $MySpellSetting[$j][$i][0])
-		IniWriteS($g_sProfileConfigPath, "MySpells", $MySpells[$i][0] & "Pre" & $j, $MySpellSetting[$j][$i][1])
+		IniWriteS($g_sProfileConfigPath, "MySpells", $MySpells[$i][0] & "Order" & $j, $MySpellSetting[$j][$i][1])
+		IniWriteS($g_sProfileConfigPath, "MySpells", $MySpells[$i][0] & "Pre" & $j, $MySpellSetting[$j][$i][2])
 	Next
 Next

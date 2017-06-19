@@ -132,15 +132,22 @@ For $i = 0 To UBound($MyTroops) - 1
 	$MyTroops[$i][1] =  $MyTroopsSetting[$icmbTroopSetting][$i][1]
 Next
 
+IniReadS($ichkMySpellsOrder, $g_sProfileConfigPath, "MySpells", "Order", "0")
+
+IniReadS($ichkEnableDeleteExcessSpells, $g_sProfileConfigPath, "MySpells", "DeleteExcess", "0")
+IniReadS($ichkForcePreBrewSpell, $g_sProfileConfigPath, "MySpells", "ForcePreBrewSpell", "0")
+
 For $j = 0 To 2
 	For $i = 0 To UBound($MySpells) - 1
 		IniReadS($MySpellSetting[$j][$i][0], $g_sProfileConfigPath, "MySpells", $MySpells[$i][0] & $j, "0", "Int")
-		IniReadS($MySpellSetting[$j][$i][1], $g_sProfileConfigPath, "MySpells", $MySpells[$i][0] & "Pre" & $j, "0", "Int")
+		IniReadS($MySpellSetting[$j][$i][1],$g_sProfileConfigPath, "MySpells", $MySpells[$i][0] & "Order" & $j, $i + 1,"Int")
+		IniReadS($MySpellSetting[$j][$i][2], $g_sProfileConfigPath, "MySpells", $MySpells[$i][0] & "Pre" & $j, "0", "Int")
 	Next
 Next
 For $i = 0 To UBound($MySpells) - 1
 	Assign("i" & $MySpells[$i][0] & "SpellComp",  $MySpellSetting[$icmbTroopSetting][$i][0])
-	Assign("ichkPre" & $MySpells[$i][0],  $MySpellSetting[$icmbTroopSetting][$i][1])
+	Assign("ichkPre" & $MySpells[$i][0],  $MySpellSetting[$icmbTroopSetting][$i][2])
+	$MySpells[$i][1] =  $MySpellSetting[$icmbTroopSetting][$i][1]
 Next
 
 ;$iTotalTrainSpaceSpell = 0

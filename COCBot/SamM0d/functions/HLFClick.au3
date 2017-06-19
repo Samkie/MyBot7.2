@@ -59,8 +59,11 @@ Global $aButtonSettingTabSetting[9]		  = [388, 80  + $g_iMidOffsetY, 484, 100 + 
 Global $aButtonGoogleConnectRed[9]		  = [410, 380 + $g_iMidOffsetY, 460, 400 + $g_iMidOffsetY, 431, 401 + $g_iMidOffsetY, 	0xD00408, 20, "=-= Connect Red"]
 Global $aButtonGoogleConnectGreen[9]	  = [410, 380 + $g_iMidOffsetY, 460, 400 + $g_iMidOffsetY, 431, 378 + $g_iMidOffsetY, 	0xD0E878, 20, "=-= Connect Green"]
 
-Global $aButtonVillageLoad[9] 		      = [480, 385 + $g_iMidOffsetY, 550, 415 + $g_iMidOffsetY, 455, 407 + $g_iMidOffsetY, 	0x66B410, 20, "=-= Village Load"]
-Global $aButtonVillageCancel[9] 		  = [310, 385 + $g_iMidOffsetY, 380, 415 + $g_iMidOffsetY, 288, 403 + $g_iMidOffsetY, 	0xE06824, 20, "=-= Village Cancel"]
+;Global $aButtonVillageLoad[9] 		      = [480, 385 + $g_iMidOffsetY, 550, 415 + $g_iMidOffsetY, 455, 407 + $g_iMidOffsetY, 	0x66B410, 20, "=-= Village Load"]
+Global $aButtonVillageLoad[9] 		      = [480, 385 + $g_iMidOffsetY, 550, 415 + $g_iMidOffsetY, 455, 407 + $g_iMidOffsetY, 	0x72C11D, 20, "=-= Village Load"]
+;Global $aButtonVillageCancel[9] 		  = [310, 385 + $g_iMidOffsetY, 380, 415 + $g_iMidOffsetY, 288, 403 + $g_iMidOffsetY, 	0xE06824, 20, "=-= Village Cancel"]
+Global $aButtonVillageCancel[9] 		  = [310, 385 + $g_iMidOffsetY, 380, 415 + $g_iMidOffsetY, 288, 403 + $g_iMidOffsetY, 	0xED7531, 20, "=-= Village Cancel"]
+
 Global $aButtonVillageConfirmClose[9]     = [575, 20               , 595, 40               , 562, 37               , 	0x605450, 20, "=-= Village Confirm Close"]
 Global $aButtonVillageConfirmText[9]      = [320, 160 + $g_iMidOffsetY, 375, 170 + $g_iMidOffsetY, 350, 165 + $g_iMidOffsetY, 	0xFFFFFF, 5 , "=-= Village Confirm Text"]
 Global $aButtonVillageConfirmOK[9]        = [500, 155 + $g_iMidOffsetY, 555, 175 + $g_iMidOffsetY, 480, 168 + $g_iMidOffsetY, 	0x76C01E, 20, "=-= Village Confirm Okay"]

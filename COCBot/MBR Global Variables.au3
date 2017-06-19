@@ -1416,7 +1416,7 @@ Global $g_oBldgAttackInfo = ObjCreate("Scripting.Dictionary") ; stores building 
 $g_oBldgAttackInfo.CompareMode = 1 ; use case in-sensitve compare for key values
 
 ;===============SamM0d Global Variables====================
-Global $sAI = ""
+Global $g_sEmulatorInfo4MySwitch
 Global $g_bFullArmyHero = False
 #include "SamM0d\Global Variables.au3"
 ;============END SamM0d Global Variables==================================

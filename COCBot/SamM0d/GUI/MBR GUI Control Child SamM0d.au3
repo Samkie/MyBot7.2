@@ -44,6 +44,31 @@ Func chkMyTroopOrder()
 	EndIf
 EndFunc
 
+Func chkMySpellOrder()
+	Local $tempOrder[10]
+	Local $tempSwap
+	Local $tempSwapTo
+	Local $TotalCapacity = 0
+	For $i = 0 To 9
+		$tempOrder[$i] = GUICtrlRead(Eval("cmbMy" & $MySpells[$i][0] & "Order"))
+	Next
+	For $i = 0 To 9
+		If $tempOrder[$i] <> $MySpells[$i][1] Then
+			For $j = 0 To 9
+				If $MySpells[$j][1] = $tempOrder[$i] Then
+					$tempOrder[$j] = Number($MySpells[$i][1])
+					ExitLoop
+				EndIf
+			Next
+			ExitLoop
+		EndIf
+	Next
+	For $i = 0 To 9
+		$MySpells[$i][1] = Number($tempOrder[$i])
+		_GUICtrlComboBox_SetCurSel(Eval("cmbMy" & $MySpells[$i][0] & "Order"), $MySpells[$i][1]-1)
+	Next
+EndFunc
+
 Func chkDisablePretrainTroops()
 	If GUICtrlRead($chkDisablePretrainTroops) = $GUI_CHECKED Then
 		$ichkDisablePretrainTroops = 1
@@ -67,11 +92,12 @@ Func cmbTroopSetting()
 	Next
 	For $i = 0 To UBound($MySpells) - 1
 		If GUICtrlRead(Eval("chkPre" & $MySpells[$i][0])) = $GUI_CHECKED Then
-			$MySpellSetting[$icmbTroopSetting][$i][1] = 1
+			$MySpellSetting[$icmbTroopSetting][$i][2] = 1
 		Else
-			$MySpellSetting[$icmbTroopSetting][$i][1] = 0
+			$MySpellSetting[$icmbTroopSetting][$i][2] = 0
 		EndIf
 		$MySpellSetting[$icmbTroopSetting][$i][0] = GUICtrlRead(Eval("txtNum" & $MySpells[$i][0] & "Spell"))
+		$MySpellSetting[$icmbTroopSetting][$i][1] = GUICtrlRead(Eval("cmbMy" & $MySpells[$i][0] & "Order"))
 	Next
 
 	$icmbTroopSetting = _GUICtrlComboBox_GetCurSel($cmbTroopSetting)
@@ -85,7 +111,8 @@ Func cmbTroopSetting()
 
 	For $i = 0 To UBound($MySpells) - 1
 		Assign("i" & $MySpells[$i][0] & "SpellComp",  $MySpellSetting[$icmbTroopSetting][$i][0])
-		Assign("ichkPre" & $MySpells[$i][0],  $MySpellSetting[$icmbTroopSetting][$i][1])
+		Assign("ichkPre" & $MySpells[$i][0],  $MySpellSetting[$icmbTroopSetting][$i][2])
+		$MySpells[$i][1] =  $MySpellSetting[$icmbTroopSetting][$i][1]
 	Next
 
 	For $i = 0 To UBound($MyTroops)-1
@@ -100,19 +127,11 @@ Func cmbTroopSetting()
 			GUICtrlSetState(Eval("chkPre" & $MySpells[$i][0]), $GUI_UNCHECKED)
 		EndIf
 		GUICtrlSetData(Eval("txtNum" & $MySpells[$i][0] & "Spell"), Eval("i" & $MySpells[$i][0] & "SpellComp"))
+		_GUICtrlComboBox_SetCurSel(Eval("cmbMy" & $MySpells[$i][0] & "Order"), $MySpells[$i][1]-1)
 	Next
-;~ 	GUICtrlSetData($txtNumLightningSpell, $iLightningSpellComp)
-;~ 	GUICtrlSetData($txtNumRageSpell, $iRageSpellComp)
-;~ 	GUICtrlSetData($txtNumHealSpell, $iHealSpellComp)
-;~ 	GUICtrlSetData($txtNumJumpSpell, $iJumpSpellComp)
-;~ 	GUICtrlSetData($txtNumFreezeSpell, $iFreezeSpellComp)
-;~ 	GUICtrlSetData($txtNumCloneSpell, $iCloneSpellComp)
-;~ 	GUICtrlSetData($txtNumPoisonSpell, $iPoisonSpellComp)
-;~ 	GUICtrlSetData($txtNumEarthSpell, $iEarthSpellComp)
-;~ 	GUICtrlSetData($txtNumHasteSpell, $iHasteSpellComp)
-;~ 	GUICtrlSetData($txtNumSkeletonSpell, $iSkeletonSpellComp)
 
 	chkMyTroopOrder()
+	chkMySpellOrder()
 	lblMyTotalCountSpell()
 EndFunc
 
@@ -186,6 +205,22 @@ Func chkEnableDeleteExcessTroops()
 		$ichkEnableDeleteExcessTroops = 1
 	Else
 		$ichkEnableDeleteExcessTroops = 0
+	EndIf
+EndFunc
+
+Func chkEnableDeleteExcessSpells()
+	If GUICtrlRead($chkEnableDeleteExcessSpells) = $GUI_CHECKED Then
+		$ichkEnableDeleteExcessSpells = 1
+	Else
+		$ichkEnableDeleteExcessSpells = 0
+	EndIf
+EndFunc
+
+Func chkForcePreBrewSpell()
+	If GUICtrlRead($chkForcePreBrewSpell) = $GUI_CHECKED Then
+		$ichkForcePreBrewSpell = 1
+	Else
+		$ichkForcePreBrewSpell = 0
 	EndIf
 EndFunc
 

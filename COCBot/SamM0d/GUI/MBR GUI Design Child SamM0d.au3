@@ -400,10 +400,10 @@ $chkEnableDeleteExcessTroops = GUICtrlCreateCheckbox(GetTranslatedFileIni("sam m
 	GUICtrlSetState(-1, $GUI_UNCHECKED)
 
 $y += 40
-$lblStickToTrainWindow = GUICtrlCreateLabel(GetTranslatedFileIni("sam m0d", 59, "Stick to army train page when train time left") , $x, $y)
+$lblStickToTrainWindow = GUICtrlCreateLabel(GetTranslatedFileIni("sam m0d", 59, "Stick to army train page when train/spell time left") , $x, $y)
 $y += 20
 $txtStickToTrainWindow = GUICtrlCreateInput("2", $x, $y-2, 30, 20, BitOR($GUI_SS_DEFAULT_INPUT, $ES_CENTER, $ES_NUMBER))
-	$sTxtTip = GetTranslatedFileIni("sam m0d", 60, "Will stick to army train page until troops train finish. (Max 5 minutes)")
+	$sTxtTip = GetTranslatedFileIni("sam m0d", 60, "Will stick to army train page until troops or spells train finish. (Max 5 minutes)(Spell only available if wait for spell enable)")
 	_GUICtrlSetTip(-1, $sTxtTip)
 	GUICtrlSetLimit(-1, 1)
 	GUICtrlSetData(-1, 2)
@@ -422,7 +422,7 @@ $yStart = 55
 
 Local $x = $xStart, $y = $yStart
 
-	$grpSpells = GUICtrlCreateGroup(GetTranslatedFileIni("sam m0d", 65, "My Spells"), $x, $y, 430, 335)
+	$grpSpells = GUICtrlCreateGroup(GetTranslatedFileIni("sam m0d", 65, "My Spells"), $x, $y, 430, 385)
 		$lblTotalSpell = GUICtrlCreateLabel(GetTranslatedFileIni("MBR GUI Design Child Attack - Troops", "SpellCapacity", "Spell Capacity"), $x+3 , $y + 24, -1, -1, $SS_RIGHT)
 		$txtTotalCountSpell2 = GUICtrlCreateCombo("", $x + 125, $y+20 , 35, 21, BitOR($CBS_DROPDOWNLIST, $CBS_AUTOHSCROLL))
 			_GUICtrlSetTip(-1, GetTranslatedFileIni("MBR GUI Design Child Attack - Troops", "TxtTotalCountSpell_Info_01", "Enter the No. of Spells Capacity. Set to ZERO if you don't want any Spells"))
@@ -521,13 +521,41 @@ Local $x = $xStart, $y = $yStart
 			GUICtrlSetOnEvent(-1, "lblMyTotalCountSpell")
 		$lblTimesSkeletonS = GUICtrlCreateLabel("x", $x + 157, $y+3, -1, -1)
 
-Local $x = $xStart + 100, $y = $yStart + 55
+Local $x = 190, $y = 110
+
+$chkMySpellsOrder = GUICtrlCreateCheckbox(GetTranslatedFileIni("sam m0d", "Order", "Order"), $x, $y - 25 , -1, -1)
+
+Local $sComboSpellData= ""
+Local $aSpellOrderList[11] = ["","1","2","3","4","5","6","7","8","9","10"]
+For $j = 0 To 10
+	$sComboSpellData &= $aSpellOrderList[$j] & "|"
+Next
 
 	For $i = 0 To UBound($MySpells) - 1
-		Assign("chkPre" & $MySpells[$i][0], GUICtrlCreateCheckbox(GetTranslatedFileIni("sam m0d", 77 + $i, "Pre-Brew " & $MySpells[$i][0]) , $x + 94, $y, -1, -1))
+		Assign("chkPre" & $MySpells[$i][0], GUICtrlCreateCheckbox(GetTranslatedFileIni("sam m0d", 77 + $i, "Pre-Brew " & $MySpells[$i][0]) , $x + 40, $y, -1, -1))
 			_GUICtrlSetTip(-1, GetTranslatedFileIni("sam m0d", 87 + $i, "Pre-Brew " & $MySpells[$i][0] & " after available spell prepare finish."))
+
+		Assign("cmbMy"& $MySpells[$i][0] & "Order", GUICtrlCreateCombo("", $x, $y, 36, 18, BitOR($CBS_DROPDOWNLIST, $CBS_AUTOHSCROLL)))
+			GUICtrlSetData(-1, $sComboSpellData, $i + 1)
+			GUICtrlSetOnEvent(-1, "chkMySpellOrder")
 		$y +=25
 	Next
+
+$y += 10
+$chkEnableDeleteExcessSpells = GUICtrlCreateCheckbox(GetTranslatedFileIni("sam m0d", "DeleteExcessSpells", "Enable delete excess Spells"), 20, $y, -1, -1)
+	$sTxtTip = GetTranslatedFileIni("sam m0d", "DeleteExcessSpellsTip", "Check is that spells excess your quantity setting, if yes then delete excess value.")
+	GUICtrlSetOnEvent(-1, "chkEnableDeleteExcessSpells")
+	_GUICtrlSetTip(-1, $sTxtTip)
+	GUICtrlSetState(-1, $GUI_UNCHECKED)
+
+$y += 25
+$chkForcePreBrewSpell = GUICtrlCreateCheckbox(GetTranslatedFileIni("sam m0d", "ForcePreBrewSpell", "Force Pre-Brew Spell"), 20, $y, -1, -1)
+	$sTxtTip = GetTranslatedFileIni("sam m0d", "ForcePreBrewSpellTip", "Force Pre-Brew Spell to queue. ONLY Enable if you only brew 1 type of spell.")
+	GUICtrlSetOnEvent(-1, "chkForcePreBrewSpell")
+	_GUICtrlSetTip(-1, $sTxtTip)
+	GUICtrlSetState(-1, $GUI_UNCHECKED)
+
+
 	GUICtrlCreateGroup("", -99, -99, 1, 1)
 
 

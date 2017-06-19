@@ -4,7 +4,7 @@
 ; Syntax ........:getNextSwitchList()
 ; Parameters ....:
 ; Return values .: None
-; Author ........: Samkie (30 May, 2017)
+; Author ........: Samkie (19 JUN, 2017)
 ; Modified ......:
 ; Remarks .......:
 ; Related .......:
@@ -108,21 +108,23 @@ Func SelectGoogleAccount($iSlot)
 	EndIf
 
 	; wait for game reload
-	$iCount = 0
-	While Not _ColorCheck(_GetPixelColor($aButtonSetting[4], $aButtonSetting[5],True), Hex($aButtonSetting[6], 6), Number($aButtonSetting[7]))
-		If $iSamM0dDebug Then SetLog("Color: " & _GetPixelColor(160, 380,True))
-		If _ColorCheck(_GetPixelColor(402, 516,True), Hex(0xFFFFFF, 6), 5) And _ColorCheck(_GetPixelColor(405, 537,True), Hex(0x5EAC10, 6), 20) Then
-			Click($aButtonVillageWasAttackOK[0],$aButtonVillageWasAttackOK[1],1,0,"#VWAO")
-			If _Sleep(1000) Then Return True
-			Return True ;  village was attacked okay button
-		EndIf
-		$iCount += 1
-		If $iCount > 20 Then
-			; if cannot locate button setting, let continue checkMainScreen() handle.
-			ExitLoop
-		EndIf
-		If _Sleep(1000) Then Return True
-	WEnd
+	Wait4Main()
+
+;~ 	$iCount = 0
+;~ 	While Not _ColorCheck(_GetPixelColor($aButtonSetting[4], $aButtonSetting[5],True), Hex($aButtonSetting[6], 6), Number($aButtonSetting[7]))
+;~ 		If $iSamM0dDebug Then SetLog("Color: " & _GetPixelColor(160, 380,True))
+;~ 		If _ColorCheck(_GetPixelColor(402, 516,True), Hex(0xFFFFFF, 6), 5) And _ColorCheck(_GetPixelColor(405, 537,True), Hex(0x5EAC10, 6), 20) Then
+;~ 			Click($aButtonVillageWasAttackOK[0],$aButtonVillageWasAttackOK[1],1,0,"#VWAO")
+;~ 			If _Sleep(1000) Then Return True
+;~ 			Return True ;  village was attacked okay button
+;~ 		EndIf
+;~ 		$iCount += 1
+;~ 		If $iCount > 20 Then
+;~ 			; if cannot locate button setting, let continue checkMainScreen() handle.
+;~ 			ExitLoop
+;~ 		EndIf
+;~ 		If _Sleep(1000) Then Return True
+;~ 	WEnd
 	Return True
 EndFunc
 
@@ -540,7 +542,7 @@ Func DoVillageLoadSucess($iAcc)
 	$iSelectAccError = 0
 
 	If _Sleep(1000) Then Return
-	waitMainScreen()
+	checkMainScreen(True)
 
 	If $ichkProfileImage = 1 Then ; check with image is that village load correctly
 		If checkProfileCorrect() = True Then
@@ -997,18 +999,20 @@ Func btnMakeSwitchADBFolder()
 		; remove old village before new copy
 		DirRemove($sMyProfilePath4shared_prefs, 1)
 
-		If StringInStr($sAI,"bluestacks") Then
+		If $iSamM0dDebug Then SetLog("$g_sEmulatorInfo4MySwitch: " & $g_sEmulatorInfo4MySwitch)
+
+		If StringInStr($g_sEmulatorInfo4MySwitch,"bluestacks") Then
 			$lResult = RunWait($g_sAndroidAdbPath & " -s " & $g_sAndroidAdbDevice & " shell "& Chr(34) & "su -c 'chmod 777 /data/data/" & $g_sAndroidGamePackage & "/shared_prefs; mkdir /sdcard/tempshared; cp /data/data/" & $g_sAndroidGamePackage & _
 			"/shared_prefs/* /sdcard/tempshared; exit; exit'" & Chr(34), "", @SW_HIDE)
 			If $lResult = 0 Then
-				$lResult = RunWait($g_sAndroidAdbPath & " -s " & $g_sAndroidAdbDevice & " pull /sdcard/tempshared " & $sMyProfilePath4shared_prefs, "", @SW_HIDE)
+				$lResult = RunWait($g_sAndroidAdbPath & " -s " & $g_sAndroidAdbDevice & " pull /sdcard/tempshared " & Chr(34) & $sMyProfilePath4shared_prefs & Chr(34), "", @SW_HIDE)
 				If $lResult = 0 Then
 					$lResult = RunWait($g_sAndroidAdbPath & " -s " & $g_sAndroidAdbDevice & " shell "& Chr(34) & "su -c 'rm -r /sdcard/tempshared; exit; exit'" & Chr(34), "", @SW_HIDE)
 				EndIf
 			EndIf
 		Else
-			If $iSamM0dDebug Then SetLog("Command: " & $g_sAndroidAdbPath & " -s " & $g_sAndroidAdbDevice & " pull /data/data/" & $g_sAndroidGamePackage & "/shared_prefs " & $sMyProfilePath4shared_prefs)
-			$lResult = RunWait($g_sAndroidAdbPath & " -s " & $g_sAndroidAdbDevice & " pull /data/data/" & $g_sAndroidGamePackage & "/shared_prefs " & $sMyProfilePath4shared_prefs, "", @SW_HIDE)
+			If $iSamM0dDebug Then SetLog("Command: " & $g_sAndroidAdbPath & " -s " & $g_sAndroidAdbDevice & " pull /data/data/" & $g_sAndroidGamePackage & "/shared_prefs " & Chr(34) & $sMyProfilePath4shared_prefs & Chr(34))
+			$lResult = RunWait($g_sAndroidAdbPath & " -s " & $g_sAndroidAdbDevice & " pull /data/data/" & $g_sAndroidGamePackage & "/shared_prefs " & Chr(34) & $sMyProfilePath4shared_prefs & Chr(34), "", @SW_HIDE)
 		EndIf
 
 		If @error Then
@@ -1025,20 +1029,20 @@ Func btnMakeSwitchADBFolder()
 
 				Switch $bFileFlag
 					Case 3
-						MsgBox($MB_SYSTEMMODAL, "", "Sucess: shared_prefs copied and village_92.png captured.")
+						MsgBox($MB_SYSTEMMODAL, "", GetTranslatedFileIni("sam m0d", "MySwitch_Capture_Msg1", "Sucess: shared_prefs copied and village_92.png captured."))
 					Case 2
-						MsgBox($MB_SYSTEMMODAL, "", "Failed to copy shared_prefs from emulator, but village_92.png captured.")
+						MsgBox($MB_SYSTEMMODAL, "", GetTranslatedFileIni("sam m0d", "MySwitch_Capture_Msg2", "Failed to copy shared_prefs from emulator, but village_92.png captured."))
 					Case 1
-						MsgBox($MB_SYSTEMMODAL, "", "Failed to capture village_92.png from emulator, but shared_prefs copied.")
+						MsgBox($MB_SYSTEMMODAL, "", GetTranslatedFileIni("sam m0d", "MySwitch_Capture_Msg3", "Failed to capture village_92.png from emulator, but shared_prefs copied."))
 					Case Else
-						MsgBox($MB_SYSTEMMODAL, "", "Failed to copy shared_prefs and capture village_92.png from emulator.")
+						MsgBox($MB_SYSTEMMODAL, "", GetTranslatedFileIni("sam m0d", "MySwitch_Capture_Msg4", "Failed to copy shared_prefs and capture village_92.png from emulator."))
 				EndSwitch
 			Else
 				MsgBox($MB_SYSTEMMODAL, "", "Failed to run operate adb command.")
 			EndIf
 		EndIf
 	Else
-		MsgBox($MB_SYSTEMMODAL, "", "Please open emulator and coc, then go to profile page before doing this action.")
+		MsgBox($MB_SYSTEMMODAL, "", GetTranslatedFileIni("sam m0d", "MySwitch_Capture_Shared_Prefs_Error", "Please open emulator and coc, then go to profile page before doing this action."))
 	EndIf
 EndFunc
 
@@ -1052,26 +1056,24 @@ Func loadVillageFrom($Profilename, $iSlot)
 
 	;If FileExists($sMyProfilePath4shared_prefs & "\localPrefs.xml") Then FileDelete($sMyProfilePath4shared_prefs & "\localPrefs.xml")
 
-	If StringInStr($sAI,"bluestacks") Then
+	If StringInStr($g_sEmulatorInfo4MySwitch,"bluestacks") Then
 		$lResult = DirCopy($sMyProfilePath4shared_prefs, $hostPath, 1)
 		If $lResult = 1 Then
 			$lResult = RunWait($g_sAndroidAdbPath & " -s " & $g_sAndroidAdbDevice & " shell "& Chr(34) & "su -c 'chmod 777 /data/data/" & $g_sAndroidGamePackage & "/shared_prefs; " & _
 			"cp -r " & $androidPath & "* /data/data/" & $g_sAndroidGamePackage & "/shared_prefs; exit; exit'" & Chr(34), "", @SW_HIDE)
 			DirRemove($hostPath, 1)
-			If $lResult = 0 Then
-				SetLog("shared_prefs copy to emulator should be okay.", $COLOR_INFO)
-				CloseCoC(True)
-				Return True
-			EndIf
 		EndIf
 	Else
-		$lResult = RunWait($g_sAndroidAdbPath & " -s " & $g_sAndroidAdbDevice & " push " & $sMyProfilePath4shared_prefs & " /data/data/" & $g_sAndroidGamePackage & "/shared_prefs", "", @SW_HIDE)
-		If $lResult = 0 Then
-			SetLog("shared_prefs copy to emulator should be okay.", $COLOR_INFO)
-			CloseCoC(True)
-			Return True
-		EndIf
+		$lResult = RunWait($g_sAndroidAdbPath & " -s " & $g_sAndroidAdbDevice & " push " & Chr(34) & $sMyProfilePath4shared_prefs & Chr(34) & " /data/data/" & $g_sAndroidGamePackage & "/shared_prefs", "", @SW_HIDE)
 	EndIf
+
+	If $lResult = 0 Then
+		SetLog("shared_prefs copy to emulator should be okay.", $COLOR_INFO)
+		OpenCoC()
+		Wait4Main()
+		Return True
+	EndIf
+
 	Return False
 EndFunc
 
@@ -1148,4 +1150,29 @@ Func checkProfileCorrect()
 		Return True
 	EndIf
 	Return False
+EndFunc
+
+Func Wait4Main()
+	Local $iCount
+
+	For $i = 0 To 105 ;105*2000 = 3.5 Minutes
+		$iCount += 1
+		If $iSamM0dDebug Then
+			Setlog("ChkObstl Loop = " & $i & "   ExitLoop = " & $iCount, $COLOR_DEBUG) ; Debug stuck loop
+		EndIf
+		_CaptureRegion()
+		If _ColorCheck(_GetPixelColor($aButtonOpenShieldInfo[4], $aButtonOpenShieldInfo[5], $g_bNoCapturePixel), Hex($aButtonOpenShieldInfo[6], 6), Number($aButtonOpenShieldInfo[7])) Then ;Checks for Main Screen
+			If $iSamM0dDebug Then Setlog("Screen cleared, WaitMainScreen exit", $COLOR_DEBUG)
+			ExitLoop
+		Else
+			If TestCapture() = False And _Sleep($DELAYWAITMAINSCREEN1) Then Return
+			If _ColorCheck(_GetPixelColor(402, 516, $g_bNoCapturePixel), Hex(0xFFFFFF, 6), 5) And _ColorCheck(_GetPixelColor(405, 537, $g_bNoCapturePixel), Hex(0x5EAC10, 6), 20) Then
+				Click($aButtonVillageWasAttackOK[0],$aButtonVillageWasAttackOK[1],1,0,"#VWAO")
+				If _Sleep(1000) Then Return True
+				;Return True ;  village was attacked okay button
+			EndIf
+			checkObstacles() ;See if there is anything in the way of mainscreen
+		EndIf
+		If ($i > 105) Or ($iCount > 120) Then ExitLoop ; If CheckObstacles forces reset, limit total time to 4 minutes
+	Next
 EndFunc

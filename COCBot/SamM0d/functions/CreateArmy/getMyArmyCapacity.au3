@@ -7,7 +7,7 @@
 ;                  $bCloseArmyWindow    - [optional] a boolean value. Default is False.
 ; Return values .: None
 ; Author ........: Separated from checkArmyCamp()
-; Modified ......: Samkie (31 Dec, 2016)
+; Modified ......: Samkie (19 JUN 2017)
 ; Remarks .......: This file is part of MyBot, previously known as ClashGameBot. Copyright 2015-2016
 ;                  MyBot is distributed under the terms of the GNU GPL
 ; Related .......:
@@ -31,54 +31,46 @@ Func getMyArmyCapacity($bOpenArmyWindow = False, $bCloseArmyWindow = False)
 
 	Local $aGetArmySize[3] = ["", "", ""]
 	Local $sArmyInfo = ""
-	Local $sInputbox, $iTried, $iHoldCamp, $iHoldCur
-	Local $tmpTotalCamp = 0
-	Local $tmpCurCamp = 0
+	Local $sInputbox, $iCount, $tmpTotalCamp
 
-	; Verify troop current and full capacity
-	$iTried = 0 ; reset loop safety exit counter
-	;$sArmyInfo = getArmyCampCap($aArmyCampSize[0], $aArmyCampSize[1]) ; OCR read army trained and total
-	;If $g_iDebugSetlogTrain = 1 Then Setlog("OCR $sArmyInfo = " & $sArmyInfo, $COLOR_DEBUG)
+	$iCount = 0 ; reset loop safety exit counter
 
-	While $iTried < 100 ; 30 - 40 sec
-		$iTried += 1
-		If _Sleep(250) Then Return ; Wait 250ms before reading again
-		;$sArmyInfo = getArmyCampCap($aArmyCampSize[0], $aArmyCampSize[1]) ; OCR read army trained and total
-		; samm0d
-		$sArmyInfo = getMyOcrArmyCap() ; OCR read army trained and total
-		If $g_iDebugSetlogTrain = 1 Then Setlog("OCR $sArmyInfo = " & $sArmyInfo, $COLOR_DEBUG)
-		If StringInStr($sArmyInfo, "#", 0, 1) < 2 Then ContinueLoop ; In case the CC donations recieved msg are blocking, need to keep checking numbers till valid
-
-		$aGetArmySize = StringSplit($sArmyInfo, "#") ; split the trained troop number from the total troop number
+	While 1
+		$sArmyInfo = getMyOcrArmyCap()
+		If $g_iDebugSetlogTrain = 1 Then Setlog("$sArmyInfo = " & $sArmyInfo, $COLOR_DEBUG)
+		$aGetArmySize = StringSplit($sArmyInfo, "#")
 		If IsArray($aGetArmySize) Then
-			If $aGetArmySize[0] > 1 Then ; check if the OCR was valid and returned both values
-				If Number($aGetArmySize[2]) < 10 Or Mod(Number($aGetArmySize[2]), 5) <> 0 Then ; check to see if camp size is multiple of 5, or try to read again
+			If $aGetArmySize[0] > 1 Then
+				If Number($aGetArmySize[2]) < 20 Or Mod(Number($aGetArmySize[2]), 5) <> 0 Then ; check to see if camp size is multiple of 5, or try to read again
 					If $g_iDebugSetlogTrain = 1 Then Setlog(" OCR value is not valid camp size", $COLOR_DEBUG)
 					ContinueLoop
 				EndIf
-				$tmpCurCamp = Number($aGetArmySize[1])
-				If $g_iDebugSetlogTrain = 1 Then Setlog("$tmpCurCamp = " & $tmpCurCamp, $COLOR_DEBUG)
 				$tmpTotalCamp = Number($aGetArmySize[2])
-				If $g_iDebugSetlogTrain = 1 Then Setlog("$g_iTotalCampSpace = " & $g_iTotalCampSpace & ", Camp OCR = " & $tmpTotalCamp, $COLOR_DEBUG)
-				If $iHoldCamp = $tmpTotalCamp And $iHoldCur = $tmpCurCamp Then ExitLoop ; check to make sure the OCR read value is same in 2 reads before exit
-				$iHoldCur = $tmpCurCamp
-				$iHoldCamp = $tmpTotalCamp ; Store last OCR read value
+				$g_CurrentCampUtilization = Number($aGetArmySize[1])
+				If $g_iTotalCampSpace = 0 Then $g_iTotalCampSpace = $tmpTotalCamp
+				If $g_iDebugSetlogTrain = 1 Then Setlog("$g_CurrentCampUtilization = " & $g_CurrentCampUtilization & ", $g_iTotalCampSpace = " & $g_iTotalCampSpace, $COLOR_DEBUG)
+				;$g_iArmyCapacity = Int($g_CurrentCampUtilization / $tmpTotalCamp * 100)
+				;SetLog("Troops: " & $g_CurrentCampUtilization & "/" & $tmpTotalCamp & " (" & $g_iArmyCapacity & "%)")
+				ExitLoop
+			Else
+				$g_CurrentCampUtilization = 0
+				$tmpTotalCamp = 0
 			EndIf
+		Else
+			$g_CurrentCampUtilization = 0
+			$tmpTotalCamp = 0
 		EndIf
-
+		$iCount += 1
+		If $iCount > 100 Then ExitLoop ; try reading 30 times for 250+150ms OCR for 4 sec
+		If _Sleep(250) Then Return ; Wait 250ms
 	WEnd
 
-	If $iTried <= 99 Then
-		$g_CurrentCampUtilization = $tmpCurCamp
-		If $g_iTotalCampSpace = 0 Then $g_iTotalCampSpace = $tmpTotalCamp
-		If $g_iDebugSetlogTrain = 1 Then Setlog("$g_CurrentCampUtilization = " & $g_CurrentCampUtilization & ", $g_iTotalCampSpace = " & $g_iTotalCampSpace, $COLOR_DEBUG)
-	Else
+	If $g_CurrentCampUtilization = 0 And $tmpTotalCamp = 0 Then
 		Setlog("Army size read error, Troop numbers may not train correctly", $COLOR_ERROR) ; log if there is read error
-		$g_CurrentCampUtilization = 0
 		CheckOverviewFullArmy()
 	EndIf
 
-	If $g_iTotalCampSpace = 0 Or ($g_iTotalCampSpace <> $tmpTotalCamp) Then ; if Total camp size is still not set or value not same as read use forced value
+	If $g_iTotalCampSpace = 0 Or ($g_iTotalCampSpace <> $tmpTotalCamp) Then  ; if Total camp size is still not set or value not same as read use forced value
 		If $g_bTotalCampForced = False Then ; check if forced camp size set in expert tab
 		    Local $proposedTotalCamp = $tmpTotalCamp
 			If $g_iTotalCampSpace > $tmpTotalCamp Then $proposedTotalCamp = $g_iTotalCampSpace
@@ -111,11 +103,11 @@ Func getMyArmyCapacity($bOpenArmyWindow = False, $bCloseArmyWindow = False)
 			$g_iTotalCampSpace = Number($g_iTotalCampForcedValue)
 		EndIf
 	EndIf
-	If _Sleep(500) Then Return
+	;If _Sleep(500) Then Return
 
 	If $g_iTotalCampSpace > 0 Then
-		SetLog("Troops: " & $g_CurrentCampUtilization & "/" & $g_iTotalCampSpace & " (" & Int($g_CurrentCampUtilization / $g_iTotalCampSpace * 100) & "%)")
 		$g_iArmyCapacity = Int($g_CurrentCampUtilization / $g_iTotalCampSpace * 100)
+		SetLog("Troops: " & $g_CurrentCampUtilization & "/" & $g_iTotalCampSpace & " (" & $g_iArmyCapacity & "%)")
 	Else
 		SetLog("Troops: " & $g_CurrentCampUtilization & "/" & $g_iTotalCampSpace)
 		$g_iArmyCapacity = 0

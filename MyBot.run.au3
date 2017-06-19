@@ -69,7 +69,7 @@ InitializeBot()
 MainLoop()
 
 Func UpdateBotTitle()
-	Local $sTitle = "My Bot " & $g_sBotVersion & " "
+	Local $sTitle = "My Bot " & $g_sBotVersion & " @Samkie M0d v0.7.8 "
 	If $g_sBotTitle = "" Then
 		$g_sBotTitle = $sTitle
 	Else
@@ -167,6 +167,8 @@ Func InitializeBot()
 	; Some final setup steps and checks
 	FinalInitialization($sAndroidInfo)
 
+	; samm0d - MySwitch
+	$g_sEmulatorInfo4MySwitch = $sAndroidInfo
 	;ProcessSetPriority(@AutoItPID, $iBotProcessPriority) ;~ Restore process priority
 
 EndFunc   ;==>InitializeBot

@@ -210,6 +210,13 @@ Func _checkObstacles() ;Checks if something is in the way for mainscreen
 		Return False
 	EndIf
 
+	; prevent close train page failed, and get builder failed
+	If _CheckPixel($aIsTrainPgChk1, $g_bNoCapturePixel) Then
+		ClickP($aAway, 1, 0, "#0000") ;Click Away
+		$g_bMinorObstacle = True
+		If _Sleep(1000) Then Return
+		Return False
+	EndIf
 ;~ 	For $i = 1 To 7
 ;~ 		Local $tempButton = Eval("aButtonClose" & $i)
 ;~ 		If _ColorCheck(_GetPixelColor($tempButton[4], $tempButton[5], $g_bNoCapturePixel), Hex($tempButton[6], 6), Number($tempButton[7])) Then

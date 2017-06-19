@@ -4,7 +4,7 @@
 ; Syntax ........: CustomSpells()
 ; Parameters ....:
 ; Return values .: None
-; Author ........: Samkie (27 Dec 2016)
+; Author ........: Samkie (19 JUN 2017)
 ; Remarks .......: This file is part of MyBot, previously known as ClashGameBot. Copyright 2015-2016
 ;                  MyBot is distributed under the terms of the GNU GPL
 ; Related .......:
@@ -14,6 +14,11 @@
 Func CustomSpells()
 
 	If $g_iTotalSpellValue = 0 Then Return
+
+
+
+
+	If $iLightningSpellComp > 0 Or $iRageSpellComp > 0 Or $iHealSpellComp > 0 Or $iJumpSpellComp > 0 Or $iFreezeSpellComp > 0 Or $iCloneSpellComp > 0 Or $iPoisonSpellComp > 0 Or $iEarthSpellComp > 0 Or $iHasteSpellComp > 0 Or $iSkeletonSpellComp > 0 Then
 
 	Local $aOnBrewSpell
 	Local $aPreTrainSpell
@@ -28,8 +33,19 @@ Func CustomSpells()
 	Local $iCount = 0
 	Local $bRemFlag = False
 	Local $bAddFlag = False
+	Local $bPreBrewSpellEnable = False
+	Local $bOrPrebrewspell
+	Local $bWait4Spell = False
+	Local $iBrewSpellTime = 0
 
-	If $iLightningSpellComp > 0 Or $iRageSpellComp > 0 Or $iHealSpellComp > 0 Or $iJumpSpellComp > 0 Or $iFreezeSpellComp > 0 Or $iCloneSpellComp > 0 Or $iPoisonSpellComp > 0 Or $iEarthSpellComp > 0 Or $iHasteSpellComp > 0 Or $iSkeletonSpellComp > 0 Then
+	If $g_abAttackTypeEnable[$LB] = True And $g_abSearchSpellsWaitEnable[$LB] = True Then
+		$bWait4Spell = True
+	EndIf
+	If $g_abAttackTypeEnable[$DB] = True And $g_abSearchSpellsWaitEnable[$DB] = True Then
+		$bWait4Spell = True
+	EndIf
+
+
 
 	While $bLoopFlag
 
@@ -37,31 +53,91 @@ Func CustomSpells()
 		If $iCount > 5 Then ExitLoop
 
 		;reset add/remove variable for each loop
+		$bOrPrebrewspell = 0
 		For $i = $enumLightning To $enumSkeleton
 			Assign("Add" & $MySpells[$i][0] & "Spell", 0)
 			Assign("Rem" & $MySpells[$i][0] & "Spell", 0)
+			$bOrPrebrewspell = BitOR($bOrPrebrewspell, Eval("ichkPre" & $MySpells[$i][0]))
 		Next
+		If $bOrPrebrewspell = 0 Then $ichkForcePreBrewSpell = 0
+
 		$bRemFlag = False
 		$bAddFlag = False
 		$iTotalSpellCapacity = 0
 		$iTotalPreBrewSpellCapacity = 0
 		$iTotalCurOnBrewSpellCapacity = 0
 		$iRemainCapacity = 0
+		$iBrewSpellTime = 0
 		$bFlagOutOfResource = False
+
+		If $ichkForcePreBrewSpell = 1 Then
+			$bPreBrewSpellEnable = True
+		Else
+			$bPreBrewSpellEnable = False
+		EndIf
 
 		If _Sleep(250) Then Return
 
 		If gotoArmy() = True Then
-			getMyArmySpellCount(False,False,True)
-			If $g_bFullArmySpells Then
-				Local $bOrPrebrewspell
-				For $i = $enumLightning To $enumSkeleton
-					$bOrPrebrewspell = BitOR($bOrPrebrewspell, Eval("ichkPre" & $MySpells[$i][0]))
-				Next
-				If $bOrPrebrewspell = 0 Then
-					;If Not _ColorCheck(_GetPixelColor(585, 99 + $g_iMidOffsetY, True), Hex(0X6AB31E, 6), 10) Then Return
-					If _ColorCheck(_GetPixelColor(585, 100 + $g_iMidOffsetY, True), Hex(0X5A5748, 6), 20) Then Return
+			getArmySpellTime()
+			If _Sleep(10) Then Return ; 10ms improve pause button response
+			$iBrewSpellTime = $g_aiTimeTrain[1]
+
+			If $iBrewSpellTime <= 0 Then
+				getMyArmySpellCount(False,False,True)
+				If $g_bFullArmySpells Then
+					If $bOrPrebrewspell = 0 Then
+						If _ColorCheck(_GetPixelColor(586, 100 + $g_iMidOffsetY, True), Hex(0X5A5748, 6), 20) = False Then
+							If gotoBrewSpells() Then
+								If _Sleep(1000) Then Return
+								If _ColorCheck(_GetPixelColor(808, 156 + $g_iMidOffsetY, True), Hex(0xD7AFA9, 6), 10) Then ; pink color
+									RemoveAllTroopAlreadyTrain()
+									If _Sleep(1000) Then Return
+								EndIf
+								If gotoArmy() = False Then
+									SetLog("Cannot open army overview tab page.",$COLOR_ERROR)
+								EndIf
+							Else
+								SetLog("Cannot open brew spell tab page.",$COLOR_ERROR)
+							EndIf
+						EndIf
+						Return
+					Else
+						$bPreBrewSpellEnable = True
+					EndIf
+				Else
+					If _ColorCheck(_GetPixelColor(586, 100 + $g_iMidOffsetY, True), Hex(0X5E5748, 6), 20) = False Then ;color green arrow > not appear
+						If $g_iDebugSetlogTrain = 1 Then Setlog("Check on brew spells, is that stuck...")
+						If gotoBrewSpells() Then
+							If _Sleep(1000) Then Return
+							If _ColorCheck(_GetPixelColor(808, 156 + $g_iMidOffsetY, True), Hex(0xD7AFA9, 6), 10) Then ; pink color = stuck, so we remove the spells
+								RemoveAllTroopAlreadyTrain()
+								If _Sleep(1000) Then Return
+							EndIf
+						Else
+							SetLog("Cannot open brew spell tab page.",$COLOR_ERROR)
+							Return
+						EndIf
+					EndIf
 				EndIf
+			Else
+				If $iBrewSpellTime > $itxtStickToTrainWindow Then
+					If $ichkForcePreBrewSpell = 0 Then ExitLoop
+				Else
+					If $bWait4Spell Then
+						Local $iStickDelay
+						If $iBrewSpellTime < 1 Then
+							$iStickDelay = Int($iBrewSpellTime * 60000) + 250
+						ElseIf $iBrewSpellTime >= 2 Then
+							$iStickDelay = 60000
+						Else
+							$iStickDelay = 30000
+						EndIf
+						If _Sleep($iStickDelay) Then Return
+						ContinueLoop
+					EndIf
+				EndIf
+				getMyArmySpellCount(False,False,True)
 			EndIf
 		Else
 			SetLog("Error: Cannot open Army Over View page",$COLOR_ERROR)
@@ -164,19 +240,21 @@ Func CustomSpells()
 			If $bAddFlag = False And $bRemFlag = False Then
 				; checking pretrain spell
 				$bLoopFlag = False
+
 				Local $iTotalSpellCompCapacity
 				For $i = $enumLightning To $enumSkeleton
 					Local $tempComp = Eval("i" & $MySpells[$i][0] & "SpellComp")
 					Local $tempPre = Eval("pre" & $MySpells[$i][0])
-
 					If Eval("ichkPre" & $MySpells[$i][0]) = 1 Then
 						$iTotalSpellCompCapacity += ($MySpells[$i][2] * $tempComp)
 						If $tempComp <> $tempPre Then
 							Local $DifFlag = $tempComp - $tempPre
 							If $DifFlag > 0 Then
-								SetLog("Prepare for Pre-Brew number Of " & MyNameOfTroop($i+23,$DifFlag) & " x" & $DifFlag,$COLOR_ACTION)
-								Assign("Add" & $MySpells[$i][0] & "Spell", $DifFlag)
-								$bAddFlag = True
+								If $bPreBrewSpellEnable Then
+									SetLog("Prepare for Pre-Brew number Of " & MyNameOfTroop($i+23,$DifFlag) & " x" & $DifFlag,$COLOR_ACTION)
+									Assign("Add" & $MySpells[$i][0] & "Spell", $DifFlag)
+									$bAddFlag = True
+								EndIf
 							ElseIf $DifFlag < 0 Then
 								If $tempPre > $tempComp Then
 									Assign("Rem" & $MySpells[$i][0] & "Spell", $tempPre)
@@ -206,7 +284,7 @@ Func CustomSpells()
 						EndIf
 					Next
 				EndIf
-				$tempDisableBrewSpell = True ;since all brew run fine, temparary disable brew until donate spell make
+				;$tempDisableBrewSpell = True ;since all brew run fine, temparary disable brew until donate spell make
 			Else
 				; checking onbrew spell, check what need add and remove
 				If IsArray($aPreTrainSpell) Then ;remove all pretrain spell for train onbrew first
@@ -229,66 +307,38 @@ Func CustomSpells()
 						EndIf
 					EndIf
 				Next
-
 			EndIf
 
 			If $bAddFlag Then
-;~ 				If $isSantaSpellAvailable <> 1 Then ; Check if santa spell variable is not set YET
-;~ 					ForceCaptureRegion()
-;~ 					Local $_IsSantaSpellPixel[4] = [65, 540, 0x7C0427, 20]
-
-;~ 					Local $rPixelCheck = _CheckPixel($_IsSantaSpellPixel, True)
-
-;~ 					If $rPixelCheck = True Then
-;~ 						$isSantaSpellAvailable = 1
-;~ 					Else
-;~ 						$isSantaSpellAvailable = 0
-;~ 					EndIf
-;~ 				EndIf
-;~ 				If $isSantaSpellAvailable = 1 Then
-;~ 					Global $aButtonBrewLightning[9]           = [50,  390 + $g_iMidOffsetY, 90 , 420 + $g_iMidOffsetY, 61 , 394 + $g_iMidOffsetY,    0X011CEA, 20, "=-= Brew Lightning"]
-;~ 					Global $aButtonBrewHeal[9]                = [148, 390 + $g_iMidOffsetY, 193, 420 + $g_iMidOffsetY, 184, 401 + $g_iMidOffsetY,    0XF6DB70, 20, "=-= Brew Heal"]
-;~ 					Global $aButtonBrewJump[9]                = [248, 390 + $g_iMidOffsetY, 288, 420 + $g_iMidOffsetY, 283, 394 + $g_iMidOffsetY,    0XBFFA1C, 20, "=-= Brew Jump"]
-;~ 					Global $aButtonBrewClone[9]               = [348, 390 + $g_iMidOffsetY, 388, 420 + $g_iMidOffsetY, 379, 394 + $g_iMidOffsetY,    0X20ECDE, 20, "=-= Brew Clone"]
-;~ 					Global $aButtonBrewRage[9]                = [148, 490 + $g_iMidOffsetY, 193, 520 + $g_iMidOffsetY, 184, 496 + $g_iMidOffsetY,    0X6824A8, 20, "=-= Brew Rage"]
-;~ 					Global $aButtonBrewFreeze[9]              = [248, 490 + $g_iMidOffsetY, 288, 520 + $g_iMidOffsetY, 268, 482 + $g_iMidOffsetY,    0X48CEF0, 20, "=-= Brew Freeze"]
-
-;~ 					Global $aButtonBrewPoison[9]              = [453, 390 + $g_iMidOffsetY, 493, 420 + $g_iMidOffsetY, 473, 406 + $g_iMidOffsetY,    0XF87D0C, 20, "=-= Brew Poison"]
-;~ 					Global $aButtonBrewHaste[9]               = [553, 390 + $g_iMidOffsetY, 593, 420 + $g_iMidOffsetY, 568, 407 + $g_iMidOffsetY,    0XF46AA8, 20, "=-= Brew Haste"]
-;~ 					Global $aButtonBrewEarth[9]               = [453, 490 + $g_iMidOffsetY, 493, 520 + $g_iMidOffsetY, 469, 506 + $g_iMidOffsetY,    0XBB8958, 20, "=-= Brew Earth"]
-;~ 					Global $aButtonBrewSkeleton[9]            = [553, 490 + $g_iMidOffsetY, 593, 520 + $g_iMidOffsetY, 570, 508 + $g_iMidOffsetY,    0XE01400, 20, "=-= Brew Skeleton"]
-;~ 				Else
-;~ 					Global $aButtonBrewLightning[9]           = [50,  390 + $g_iMidOffsetY, 90 , 420 + $g_iMidOffsetY, 61 , 394 + $g_iMidOffsetY,    0X011CEA, 20, "=-= Brew Lightning"]
-;~ 					Global $aButtonBrewRage[9]                = [148, 390 + $g_iMidOffsetY, 193, 420 + $g_iMidOffsetY, 166, 394 + $g_iMidOffsetY,    0X402064, 20, "=-= Brew Rage"]
-;~ 					Global $aButtonBrewFreeze[9]              = [248, 390 + $g_iMidOffsetY, 288, 420 + $g_iMidOffsetY, 266, 480 + $g_iMidOffsetY,    0X48CCF0, 20, "=-= Brew Freeze"]
-;~ 					Global $aButtonBrewHeal[9]                = [50,  490 + $g_iMidOffsetY, 90 , 520 + $g_iMidOffsetY, 86 , 506 + $g_iMidOffsetY,    0XF4DC68, 20, "=-= Brew Heal"]
-;~ 					Global $aButtonBrewJump[9]                = [148, 490 + $g_iMidOffsetY, 193, 520 + $g_iMidOffsetY, 156, 490 + $g_iMidOffsetY,    0X70AC2C, 20, "=-= Brew Jump"]
-;~ 					Global $aButtonBrewClone[9]               = [248, 490 + $g_iMidOffsetY, 288, 520 + $g_iMidOffsetY, 285, 506 + $g_iMidOffsetY,    0X21ECDA, 20, "=-= Brew Clone"]
-;~ 					Global $aButtonBrewPoison[9]              = [355, 390 + $g_iMidOffsetY, 395, 420 + $g_iMidOffsetY, 375, 406 + $g_iMidOffsetY,    0XF87D0C, 20, "=-= Brew Poison"]
-;~ 					Global $aButtonBrewHaste[9]               = [455, 390 + $g_iMidOffsetY, 495, 420 + $g_iMidOffsetY, 470, 407 + $g_iMidOffsetY,    0XF46AA8, 20, "=-= Brew Haste"]
-;~ 					Global $aButtonBrewEarth[9]               = [355, 490 + $g_iMidOffsetY, 395, 520 + $g_iMidOffsetY, 371, 506 + $g_iMidOffsetY,    0XBB8958, 20, "=-= Brew Earth"]
-;~ 					Global $aButtonBrewSkeleton[9]            = [455, 490 + $g_iMidOffsetY, 495, 520 + $g_iMidOffsetY, 476, 507 + $g_iMidOffsetY,    0XE11400, 20, "=-= Brew Skeleton"]
-;~ 				EndIf
 				; start brew
+				Local $tempSpells[10][5]
+				$tempSpells	= $MySpells
+
+				If $ichkMySpellsOrder Then
+					_ArraySort($tempSpells,0,0,0,1)
+				EndIf
+
 				If $g_iDebugSetlogTrain = 1 Then SetLog("Start brew spell that assign with 'Add' ")
 				Local $iCreatedSpellCapacity = 0
-				For $i = $enumSkeleton To $enumLightning Step - 1
-					Local $tempSpell = Eval("Add" & $MySpells[$i][0] & "Spell")
+				For $i = 0 To UBound($tempSpells) - 1
+					Local $tempSpell = Eval("Add" & $tempSpells[$i][0] & "Spell")
 					If $tempSpell > 0 Then
-						Local $tempButton = Eval("aButtonBrew" & $MySpells[$i][0])
+						Local $tempButton = Eval("aButtonBrew" & $tempSpells[$i][0])
 
 						Local $iCost
 						; check train cost before click, incase use gem
-						If $MySpells[$i][4] = 0 Then
-							$iCost = getSpellCost($MySpells[$i][0])
+						If $tempSpells[$i][4] = 0 Then
+							$iCost = getSpellCost($tempSpells[$i][0])
 							If $iCost = 0 Then
 								; cannot read train cost, use max level train cost
-								$iCost = $MySpellsCost[$i][0]
+								;$iCost = $MySpellsCost[$i][0]
+								$iCost = $MySpellsCost[Eval("enum" & $tempSpells[$i][0])][0]
 							EndIf
-							$MySpells[$i][4] = $iCost
+							$tempSpells[$i][4] = $iCost
+							$MySpells[Eval("enum" & $tempSpells[$i][0])][4] = $iCost
 						EndIf
 
-						$iCost = $MySpells[$i][4]
+						$iCost = $tempSpells[$i][4]
 						If $g_iDebugSetlogTrain = 1 Then SetLog("$iCost: " & $iCost)
 
 						Local $iBuildCost = ($i > 5 ? getMyOcrCurDEFromTrain() : getMyOcrCurElixirFromTrain())
@@ -297,7 +347,7 @@ Func CustomSpells()
 						If $g_iDebugSetlogTrain = 1 Then SetLog("Total need: " & ($tempSpell * $iCost))
 						If ($tempSpell * $iCost) > $iBuildCost Then
 							$bFlagOutOfResource = True
-							Setlog("Not enough " & ( $i > 5 ? "Dark" : "") & " Elixir to brew " & MyNameOfTroop($i+23,0), $COLOR_ERROR)
+							Setlog("Not enough " & ( $i > 5 ? "Dark" : "") & " Elixir to brew " & MyNameOfTroop(Eval("enum" & $tempSpells[$i][0])+23,0), $COLOR_ERROR)
 						EndIf
 
 						If $bFlagOutOfResource Then
@@ -309,12 +359,16 @@ Func CustomSpells()
 							Return ; We are out of Elixir stop training.
 						EndIf
 
-						SetLog("Ready to brew " & MyNameOfTroop($i+23,$tempSpell) & " x" & $tempSpell & " with total " & ( $i > 5 ? "Dark " : "") & "Elixir: " & ($tempSpell * $iCost),($i > 5 ? $COLOR_DARKELIXIR : $COLOR_ELIXIR))
+						SetLog("Ready to brew " & MyNameOfTroop(Eval("enum" & $tempSpells[$i][0])+23,$tempSpell) & " x" & $tempSpell & " with total " & ( $i > 5 ? "Dark " : "") & "Elixir: " & ($tempSpell * $iCost),($i > 5 ? $COLOR_DARKELIXIR : $COLOR_ELIXIR))
 
 						MyTrainClick($tempButton,$tempSpell,$g_iTrainClickDelay,"#BS01")
-						$iCreatedSpellCapacity += ($MySpells[$i][2] * $tempSpell)
+						$iCreatedSpellCapacity += ($tempSpells[$i][2] * $tempSpell)
 					EndIf
 				Next
+				If $bOrPrebrewspell = 0 Then $tempDisableBrewSpell = True
+				If $bPreBrewSpellEnable = True And $bLoopFlag = False Then $tempDisableBrewSpell = True
+			Else
+				$tempDisableBrewSpell = True
 			EndIf
 		Else
 			SetLog("Error: Cannot open Brew Spells page",$COLOR_ERROR)

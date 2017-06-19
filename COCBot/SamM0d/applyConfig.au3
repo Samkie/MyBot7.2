@@ -270,6 +270,24 @@ Next
 
 chkMyTroopOrder()
 
+If $ichkMySpellsOrder = 1 Then
+	GUICtrlSetState($chkMySpellsOrder, $GUI_CHECKED)
+Else
+	GUICtrlSetState($chkMySpellsOrder, $GUI_UNCHECKED)
+EndIf
+
+If $ichkEnableDeleteExcessSpells = 1 Then
+	GUICtrlSetState($chkEnableDeleteExcessSpells, $GUI_CHECKED)
+Else
+	GUICtrlSetState($chkEnableDeleteExcessSpells, $GUI_UNCHECKED)
+EndIf
+
+If $ichkForcePreBrewSpell = 1 Then
+	GUICtrlSetState($chkForcePreBrewSpell, $GUI_CHECKED)
+Else
+	GUICtrlSetState($chkForcePreBrewSpell, $GUI_UNCHECKED)
+EndIf
+
 For $i = 0 To UBound($MySpells)-1
 	If Eval("ichkPre" & $MySpells[$i][0]) = 1 Then
 		GUICtrlSetState(Eval("chkPre" & $MySpells[$i][0]), $GUI_CHECKED)
@@ -277,7 +295,10 @@ For $i = 0 To UBound($MySpells)-1
 		GUICtrlSetState(Eval("chkPre" & $MySpells[$i][0]), $GUI_UNCHECKED)
 	EndIf
 	GUICtrlSetData(Eval("txtNum" & $MySpells[$i][0] & "Spell"), Eval("i" & $MySpells[$i][0] & "SpellComp"))
+	_GUICtrlComboBox_SetCurSel(Eval("cmbMy" & $MySpells[$i][0] & "Order"), $MySpells[$i][1]-1)
 Next
+
+chkMySpellOrder()
 
 GUICtrlSetData($txtTotalCountSpell2, $g_iTotalSpellValue)
 

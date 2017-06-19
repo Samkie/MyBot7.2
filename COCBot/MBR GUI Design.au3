@@ -256,7 +256,7 @@ Func CreateMainGUIControls()
    CreateBotTab()
 
 	; samm0d
-	SplashStep("Loading SamM0d tab...")
+	SplashStep("Loading M0d tab...")
 	#include "SamM0d\GUI\MBR GUI Design Child SamM0d.au3"
 
    SplashStep(GetTranslatedFileIni("MBR GUI Design - Loading", "SplashStep_07", "Loading About Us tab..."))
@@ -275,7 +275,7 @@ Func CreateMainGUIControls()
    $g_hTabBot = GUICtrlCreateTabItem(GetTranslatedFileIni("MBR Main GUI", "Tab_04", "Bot"))
 
    	; samm0d
-	$g_hTabMod = GUICtrlCreateTabItem("SamM0d v0.7.8")
+	$g_hTabMod = GUICtrlCreateTabItem("M0d")
 
    $g_hTabAbout = GUICtrlCreateTabItem(GetTranslatedFileIni("MBR Main GUI", "Tab_05", "About Us"))
    GUICtrlCreateTabItem("")

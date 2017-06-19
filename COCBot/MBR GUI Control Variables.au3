@@ -299,18 +299,18 @@ Func InitializeControlVariables()
 	$oAlwaysEnabledControls($btnMakeSwitchADBFolder) = 1
 	$oAlwaysEnabledControls($chkUseADBLoadVillage) = 1
 
-	For $i in $chkEnableAcc
-		$oAlwaysEnabledControls($i) = 1
-	Next
-	For $i in $cmbWithProfile
-		$oAlwaysEnabledControls($i) = 1
-	Next
-	For $i in $cmbAtkDon
-		$oAlwaysEnabledControls($i) = 1
-	Next
-	For $i in $cmbStayTime
-		$oAlwaysEnabledControls($i) = 1
-	Next
+;~ 	For $i in $chkEnableAcc
+;~ 		$oAlwaysEnabledControls($i) = 1
+;~ 	Next
+;~ 	For $i in $cmbWithProfile
+;~ 		$oAlwaysEnabledControls($i) = 1
+;~ 	Next
+;~ 	For $i in $cmbAtkDon
+;~ 		$oAlwaysEnabledControls($i) = 1
+;~ 	Next
+;~ 	For $i in $cmbStayTime
+;~ 		$oAlwaysEnabledControls($i) = 1
+;~ 	Next
 
 
 	For $i in $aTabControlsVillage

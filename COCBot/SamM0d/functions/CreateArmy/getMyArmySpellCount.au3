@@ -5,7 +5,7 @@
 ; Syntax ........: getMyArmySpellCount()
 ; Parameters ....:
 ; Return values .: None
-; Author ........: Samkie (11 Jan 2017)
+; Author ........: Samkie (19 JUN 2017)
 ; Modified ......:
 ; Remarks .......: This file is part of MyBot, previously known as ClashGameBot. Copyright 2015-2016
 ;                  MyBot is distributed under the terms of the GNU GPL
@@ -31,21 +31,24 @@ Func getMyArmySpellCount($bOpenArmyWindow = False, $bCloseArmyWindow = False, $t
 
 	Local $iTotalSpellSpace = 0, $iCount = 0
 	Local $SpellQ, $Result, $aFindResult
+	Local $bDeletedExcess = False
 ;~ 	Local $bSpellTrainNotCorrectly = False
-	getArmySpellTime()
-	If _Sleep(10) Then Return ; 10ms improve pause button response
+	;getArmySpellTime()
+	;If _Sleep(10) Then Return ; 10ms improve pause button response
 
 	getMyArmySpellCapacity()
 	If _Sleep(10) Then Return ; 10ms improve pause button response
 
 	If $g_iTotalSpellValue > 0 Or $test = True Then ; only use this code if the user had input spells to brew ... and assign the spells quantity
-		; reset Global variables
-		For $i = $enumLightning To $enumSkeleton
-			Assign("Cur" & $MySpells[$i][0] & "Spell", 0)
-			Assign("Cur" & $g_asSpellShortNames[$i], 0)
-		Next
-
 		While $iTotalSpellSpace = 0 And $g_iSpellFactorySize > 0
+			; reset Global variables
+			For $i = $enumLightning To $enumSkeleton
+				Assign("Cur" & $MySpells[$i][0] & "Spell", 0)
+				Assign("Cur" & $g_asSpellShortNames[$i], 0)
+			Next
+			For $i = 0 To 6
+				Assign("RemSpellSlot" & $i + 1, 0)
+			Next
 
 			Local $sRegion = 23 & "," & 354 + $g_iMidOffsetY & "," & 536 & "," & 368 + $g_iMidOffsetY ; total 7 slots for detect what spell inside the region
 			$aFindResult = getSpellTypeAndSlot($sRegion)
@@ -70,8 +73,91 @@ Func getMyArmySpellCount($bOpenArmyWindow = False, $bCloseArmyWindow = False, $t
 					Assign("Cur" & $g_asSpellShortNames[Eval("enum" & $aFindResult[$i][0])], Eval("Cur" & $aFindResult[$i][0] & "Spell"))
 
 					Setlog(" - Available no. of " & MyNameOfTroop(Eval("enum" & $aFindResult[$i][0])+23, $SpellQ) & ": " & $SpellQ, (Eval("enum" & $aFindResult[$i][0]) > 5 ? $COLOR_DARKELIXIR : $COLOR_ELIXIR))
+
 					$iTotalSpellSpace += $MySpells[Eval("enum" & $aFindResult[$i][0])][2] * $SpellQ
+
+					If $ichkEnableDeleteExcessSpells = 1 Then
+						If $SpellQ > Eval("i" & $MySpells[Eval("enum" & $aFindResult[$i][0])][0] & "SpellComp") Then
+							$bDeletedExcess = True
+							SetLog(" >>> excess: " & $SpellQ - Eval("i" & $MySpells[Eval("enum" & $aFindResult[$i][0])][0] & "SpellComp"),$COLOR_RED)
+							Assign("RemSpellSlot" & $aFindResult[$i][1], $SpellQ - Eval("i" & $MySpells[Eval("enum" & $aFindResult[$i][0])][0] & "SpellComp"))
+							If $g_iDebugSetlogTrain = 1 Then SetLog("Slot: " & $aFindResult[$i][1])
+						EndIf
+					EndIf
 				Next
+
+				If $bDeletedExcess Then
+					$bDeletedExcess = False
+					; check any spell on brew, if yes then remove first to prevent on brew spell queue into current spell slot
+					If _ColorCheck(_GetPixelColor(586, 100 + $g_iMidOffsetY, True), Hex(0X5E5748, 6), 20) = False Then
+						SetLog(" >>> stop brew spell.", $COLOR_RED)
+						If gotoBrewSpells() Then
+							If _Sleep(1000) Then Return
+							RemoveAllTroopAlreadyTrain()
+							If _Sleep(1000) Then Return
+							If gotoArmy() = False Then Return
+
+							$iCount = 0
+							$iTotalSpellSpace = 0
+							getMyArmySpellCapacity()
+							ContinueLoop
+						Else
+							Return
+						EndIf
+					EndIf
+
+					SetLog(" >>> remove excess spells.", $COLOR_RED)
+					If WaitforPixel($aButtonEditArmy[4],$aButtonEditArmy[5],$aButtonEditArmy[4]+1,$aButtonEditArmy[5]+1,Hex($aButtonEditArmy[6], 6), $aButtonEditArmy[7],20) Then
+						Click($aButtonEditArmy[0],$aButtonEditArmy[1],1,0,"#EditArmy")
+					Else
+						Return
+					EndIf
+
+					If WaitforPixel($aButtonEditCancel[4],$aButtonEditCancel[5],$aButtonEditCancel[4]+1,$aButtonEditCancel[5]+1,Hex($aButtonEditCancel[6], 6), $aButtonEditCancel[7],20) Then
+						For $i = 6 To 0 Step -1
+							Local $RemoveSlotQty = Eval("RemSpellSlot" & $i + 1)
+							If $g_iDebugSetlogTrain = 1 Then SetLog($i & " $RemoveSlotQty: " & $RemoveSlotQty)
+							If $RemoveSlotQty > 0 Then
+								Local $iRx = (80 + (73 * $i))
+								Local $iRy = 386 + $g_iMidOffsetY
+								For $j = 1 To $RemoveSlotQty
+									Click(Random($iRx-2,$iRx+2,1),Random($iRy-2,$iRy+2,1))
+									If _Sleep($g_iTrainClickDelay) Then Return
+								Next
+								Assign("RemSpellSlot" & $i + 1, 0)
+							EndIf
+						Next
+					Else
+						Return
+					EndIf
+
+					If WaitforPixel($aButtonEditOkay[4],$aButtonEditOkay[5],$aButtonEditOkay[4]+1,$aButtonEditOkay[5]+1,Hex($aButtonEditOkay[6], 6), $aButtonEditOkay[7],20) Then
+						Click($aButtonEditOkay[0],$aButtonEditOkay[1],1,0,"#EditArmyOkay")
+					Else
+						Return
+					EndIf
+
+					ClickOkay()
+
+					If _Sleep(300) Then Return
+
+					$iCount = 0
+					$iTotalSpellSpace = 0
+					getMyArmySpellCapacity()
+
+					; reset Global variables
+					; - important for if all spells remove will cause $g_iSpellFactorySize = 0 then exit loop
+					; - If not reset variable CurSpell will cause custom spell cannot brew spell
+					For $i = $enumLightning To $enumSkeleton
+						Assign("Cur" & $MySpells[$i][0] & "Spell", 0)
+						Assign("Cur" & $g_asSpellShortNames[$i], 0)
+					Next
+					For $i = 0 To 6
+						Assign("RemSpellSlot" & $i + 1, 0)
+					Next
+
+					ContinueLoop
+				EndIf
 
 				If $iTotalSpellSpace <> $g_iSpellFactorySize Then
 					SetLog("Error: Total Capacity Spell Available: " & $iTotalSpellSpace & "  -  Factory: " & $g_iSpellFactorySize, $COLOR_RED)
@@ -79,20 +165,6 @@ Func getMyArmySpellCount($bOpenArmyWindow = False, $bCloseArmyWindow = False, $t
 					$iTotalSpellSpace = 0 ;reset
 					If _Sleep(500) Then Return
 				Else
-					;SetLog("Total Available Spell Capacity: " & $iTotalSpellSpace,$COLOR_GREEN)
-
-					;reset variable $CurTotalDonSpell[1]
-					;$CurTotalDonSpell[1] = 0
-					;$CurTotalDonSpell[0] = $CurLSpell + $CurHSpell + $CurRSpell + $CurJSpell + $CurFSpell + $CurPSpell + $CurESpell + $CurHaSpell + $CurSkSpell
-					;If $CurLSpell > 0 Then $CurTotalDonSpell[1] += 1
-					;If $CurHSpell > 0 Then $CurTotalDonSpell[1] += 1
-					;If $CurRSpell > 0 Then $CurTotalDonSpell[1] += 1
-					;If $CurJSpell > 0 Then $CurTotalDonSpell[1] += 1
-					;If $CurFSpell > 0 Then $CurTotalDonSpell[1] += 1
-					;If $CurPSpell > 0 Then $CurTotalDonSpell[1] += 1
-					;If $CurESpell > 0 Then $CurTotalDonSpell[1] += 1
-					;If $CurHaSpell > 0 Then $CurTotalDonSpell[1] += 1
-					;If $CurSkSpell > 0 Then $CurTotalDonSpell[1] += 1
 					ExitLoop
 				EndIf
 			EndIf
@@ -107,7 +179,6 @@ Func getMyArmySpellCount($bOpenArmyWindow = False, $bCloseArmyWindow = False, $t
 			getMyArmySpellCapacity()
 		WEnd
 	EndIf
-
 
 	$g_bFullArmySpells = $iTotalSpellSpace >= $iMyTotalTrainSpaceSpell
 

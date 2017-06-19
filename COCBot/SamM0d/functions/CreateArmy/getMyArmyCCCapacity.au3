@@ -7,7 +7,7 @@
 ;                  $bCloseArmyWindow    - [optional] a boolean value. Default is False.
 ; Return values .: None
 ; Author ........:
-; Modified ......:
+; Modified ......: Samkie (19 JUN 2017)
 ; Remarks .......: This file is part of MyBot, previously known as ClashGameBot. Copyright 2015-2016
 ;                  MyBot is distributed under the terms of the GNU GPL
 ; Related .......:
@@ -29,50 +29,42 @@ Func getArmyCCCapacity($bOpenArmyWindow = False, $bCloseArmyWindow = False)
 		If _Sleep(500) Then Return
 	EndIf
 
-	Local $aGetArmySize[3] = ["", "", ""]
+	Local $aGetCCSize[3] = ["", "", ""]
 	Local $sCCInfo = ""
-	Local $iTried, $iHoldCamp, $iHoldCur
-	Local $tmpTotalCCCamp = 0
-	Local $tmpCurCCCamp = 0
+	Local $iCount
 
-	; Verify troop current and full capacity
-	$iTried = 0 ; reset loop safety exit counter
-	;$sCCInfo = getArmyCampCap($aCCCampSize[0], $aCCCampSize[1]) ; OCR read army trained and total
-	;If $g_iDebugSetlogTrain = 1 Then Setlog("OCR $sCCInfo = " & $sCCInfo, $COLOR_DEBUG)
+	$iCount = 0 ; reset loop safety exit counter
 
-	While $iTried < 100 ; 30 - 40 sec
-		$iTried += 1
-		If _Sleep(500) Then Return ; Wait 250ms before reading again
-		$sCCInfo = getMyOcrCCCap() ; OCR read army trained and total
-
-		If $g_iDebugSetlogTrain = 1 Then Setlog("OCR $sCCInfo = " & $sCCInfo, $COLOR_DEBUG)
-		;If StringInStr($sCCInfo, "#", 0, 1) < 2 Then ContinueLoop ; In case the CC donations recieved msg are blocking, need to keep checking numbers till valid
-		If $sCCInfo = "" Then $iTried = 100
-		$aGetArmySize = StringSplit($sCCInfo, "#") ; split the trained troop number from the total troop number
-		If IsArray($aGetArmySize) Then
-			If $aGetArmySize[0] > 1 Then ; check if the OCR was valid and returned both values
-				If Number($aGetArmySize[2]) < 10 Or Mod(Number($aGetArmySize[2]), 5) <> 0 Then ; check to see if camp size is multiple of 5, or try to read again
-					If $g_iDebugSetlogTrain = 1 Then Setlog(" OCR value is not valid CC camp size", $COLOR_DEBUG)
+	While 1
+		$sCCInfo = getMyOcrCCCap()
+		If $g_iDebugSetlogTrain = 1 Then Setlog("$sCCInfo = " & $sCCInfo, $COLOR_DEBUG)
+		$aGetCCSize = StringSplit($sCCInfo, "#")
+		If IsArray($aGetCCSize) Then
+			If $aGetCCSize[0] > 1 Then
+				If Number($aGetCCSize[2]) < 10 Or Mod(Number($aGetCCSize[2]), 5) <> 0 Then ; check to see if camp size is multiple of 5, or try to read again
+					If $g_iDebugSetlogTrain = 1 Then Setlog(" OCR value is not valid cc camp size", $COLOR_DEBUG)
 					ContinueLoop
 				EndIf
-				$tmpCurCCCamp = Number($aGetArmySize[1])
-				If $g_iDebugSetlogTrain = 1 Then Setlog("$tmpCurCCCamp = " & $tmpCurCCCamp, $COLOR_DEBUG)
-				$tmpTotalCCCamp = Number($aGetArmySize[2])
-				If $iHoldCamp = $tmpTotalCCCamp And $iHoldCur = $tmpCurCCCamp Then ExitLoop ; check to make sure the OCR read value is same in 2 reads before exit
-				$iHoldCur = $tmpCurCCCamp
-				$iHoldCamp = $tmpTotalCCCamp ; Store last OCR read value
+				$CurTotalCCCamp = Number($aGetCCSize[2])
+				$CurCCCamp = Number($aGetCCSize[1])
+				$CCCapacity = Int($CurCCCamp / $CurTotalCCCamp * 100)
+				SetLog("Clan Castle troops: " & $CurCCCamp & "/" & $CurTotalCCCamp & " (" & $CCCapacity & "%)")
+				ExitLoop
+			Else
+				$CurCCCamp = 0
+				$CurTotalCCCamp = 0
 			EndIf
+		Else
+			$CurCCCamp = 0
+			$CurTotalCCCamp = 0
 		EndIf
+		$iCount += 1
+		If $iCount > 100 Then ExitLoop ; try reading 30 times for 250+150ms OCR for 4 sec
+		If _Sleep(250) Then Return ; Wait 250ms
 	WEnd
 
-	If $iTried <= 99 Then
-		$CurCCCamp = $tmpCurCCCamp
-		$CurTotalCCCamp = $tmpTotalCCCamp
-		If $g_iDebugSetlogTrain = 1 Then Setlog("$CurCCCamp = " & $CurCCCamp & ", $CurTotalCCCamp = " & $CurTotalCCCamp, $COLOR_DEBUG)
-	Else
+	If $CurCCCamp = 0 And $CurTotalCCCamp = 0 Then
 		Setlog("CC size read error...", $COLOR_ERROR) ; log if there is read error
-		$CurCCCamp = 0
-		$CurTotalCCCamp = 0
 		$FullCCTroops = True
 		If $ichkWait4CC = 1 Then $FullCCTroops = False
 		If ($g_abAttackTypeEnable[$DB] And $g_abSearchCastleTroopsWaitEnable[$DB]) Or ($g_abAttackTypeEnable[$LB] And $g_abSearchCastleTroopsWaitEnable[$LB]) Then
@@ -80,12 +72,7 @@ Func getArmyCCCapacity($bOpenArmyWindow = False, $bCloseArmyWindow = False)
 		EndIf
 		Return
 	EndIf
-
-	If _Sleep(500) Then Return
-
-	$CCCapacity = Int($CurCCCamp / $CurTotalCCCamp * 100)
-	SetLog("Clan Castle troops: " & $CurCCCamp & "/" & $CurTotalCCCamp & " (" & $CCCapacity & "%)")
-
+	;If _Sleep(500) Then Return
 
 	If $ichkWait4CC = 1 Then
 		If ($CurCCCamp >= ($CurTotalCCCamp * $CCStrength / 100)) Then
