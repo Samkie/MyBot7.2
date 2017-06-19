@@ -48,6 +48,7 @@ Func checkMainScreen($Check = True) ;Checks if in main screen
 		EndIf
 		If $g_bAndroidAdbScreencap = False And _WinAPI_IsIconic($g_hAndroidWindow) Then WinSetState($g_hAndroidWindow, "", @SW_RESTORE)
 	EndIf
+
 	$iCount = 0
 	While _CaptureRegions() And (_CheckPixel($aIsMain) = False Or checkObstacles_Network(False, False))
 		If TestCapture() Then
@@ -81,6 +82,7 @@ Func checkMainScreen($Check = True) ;Checks if in main screen
 			ExitLoop
 		EndIf
 	WEnd
+
 	ZoomOut()
 	If Not $g_bRunState Then Return
 

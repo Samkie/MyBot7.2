@@ -1095,8 +1095,7 @@ Func checkProfileCorrect()
 			$iSecondBaseTabHeight = 0
 		EndIf
 
-		$bVillagePageFlag = _ColorCheck(_GetPixelColor(85, 163 + $iSecondBaseTabHeight, True), Hex(0X959AB6,6), 20) = True And _ColorCheck(_GetPixelColor(20, 295 + $iSecondBaseTabHeight, True), Hex(0X4E4D79,6), 10) = True
-		While $bVillagePageFlag = False
+		While 1
 			ForceCaptureRegion()
 			If _ColorCheck(_GetPixelColor(146, 146, True), Hex(0XB8B8A8,6), 10) = True Then
 				$iSecondBaseTabHeight = 49
@@ -1106,15 +1105,6 @@ Func checkProfileCorrect()
 
 			If $iSamM0dDebug = 1 Then SetLog("_GetPixelColor(85, " & 163 + $iSecondBaseTabHeight & ", True): " & _GetPixelColor(85, 163 + $iSecondBaseTabHeight, True))
 			If $iSamM0dDebug = 1 Then SetLog("_GetPixelColor(20, " & 295 + $iSecondBaseTabHeight & ", True): " & _GetPixelColor(20, 295 + $iSecondBaseTabHeight, True))
-
-			ClickDrag(380, 140 + $g_iMidOffsetY + $iSecondBaseTabHeight, 380, 580 + $g_iMidOffsetY, 1000)
-			$iCount += 1
-			If $iCount > 15 Then
-				SetLog("Cannot load profile page...", $COLOR_RED)
-				ClickP($aAway,1,0)
-				Return False
-			EndIf
-			If _Sleep(1000) Then Return False
 
 			$bVillagePageFlag = _ColorCheck(_GetPixelColor(85, 163 + $iSecondBaseTabHeight, True), Hex(0X959AB6,6), 20) = True And _ColorCheck(_GetPixelColor(20, 295 + $iSecondBaseTabHeight, True), Hex(0X4E4D79,6), 10) = True
 			If $bVillagePageFlag = True Then
@@ -1142,7 +1132,16 @@ Func checkProfileCorrect()
 						EndIf
 					EndIf
 				EndIf
+			Else
+				ClickDrag(380, 140 + $g_iMidOffsetY + $iSecondBaseTabHeight, 380, 580 + $g_iMidOffsetY, 1000)
 			EndIf
+			$iCount += 1
+			If $iCount > 15 Then
+				SetLog("Cannot load profile page...", $COLOR_RED)
+				ClickP($aAway,1,0)
+				Return False
+			EndIf
+			If _Sleep(1000) Then Return False
 		WEnd
 
 		ClickP($aAway,1,0)

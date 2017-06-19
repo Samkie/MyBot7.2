@@ -194,17 +194,18 @@ Func _checkObstacles() ;Checks if something is in the way for mainscreen
 		Return False
 	EndIf
 
-	If _ColorCheck(_GetPixelColor(550, 390,$g_bNoCapturePixel), Hex(0xFFBB34, 6),5) And _ColorCheck(_GetPixelColor(440, 390,$g_bNoCapturePixel), Hex(0xFFBB34, 6),5) And _
-	_ColorCheck(_GetPixelColor(325, 390,$g_bNoCapturePixel), Hex(0xFFFFFF, 6),5) And _ColorCheck(_GetPixelColor(300, 375,$g_bNoCapturePixel), Hex(0xFFFFFF, 6),5) Then
-		Click(Random(325,390,1),Random(380,400,1),1,0,"#KUNC")
+	If _ColorCheck(_GetPixelColor($aButtonVillageCancel[4], $aButtonVillageCancel[5],$g_bNoCapturePixel), Hex($aButtonVillageCancel[6], 6), $aButtonVillageCancel[7]) And _
+		_ColorCheck(_GetPixelColor($aButtonVillageLoad[4], $aButtonVillageLoad[5],$g_bNoCapturePixel), Hex($aButtonVillageLoad[6], 6), $aButtonVillageLoad[7]) Then
+		Click($aButtonVillageCancel[0],$aButtonVillageCancel[1],1,0,"#VL01")
 		$g_bMinorObstacle = True
 		If _Sleep(500) Then Return
 		Return False
 	EndIf
 
-	If _ColorCheck(_GetPixelColor($aButtonVillageCancel[4], $aButtonVillageCancel[5],$g_bNoCapturePixel), Hex($aButtonVillageCancel[6], 6), $aButtonVillageCancel[7]) And _
-		_ColorCheck(_GetPixelColor($aButtonVillageLoad[4], $aButtonVillageLoad[5],$g_bNoCapturePixel), Hex($aButtonVillageLoad[6], 6), $aButtonVillageLoad[7]) Then
-		Click($aButtonVillageCancel[0],$aButtonVillageCancel[1],1,0,"#VL01")
+	; KunLun Version un click verify for real name
+	If _ColorCheck(_GetPixelColor(550, 400,$g_bNoCapturePixel), Hex(0xFFBB34, 6),5) And _ColorCheck(_GetPixelColor(450, 400,$g_bNoCapturePixel), Hex(0xFFBB34, 6),5) And _
+	_ColorCheck(_GetPixelColor(310, 400,$g_bNoCapturePixel), Hex(0xFFFFFF, 6),5) And _ColorCheck(_GetPixelColor(400, 400,$g_bNoCapturePixel), Hex(0xFFFFFF, 6),5) Then
+		Click(Random(340,380,1),Random(400,415,1),1,0,"#KUNC")
 		$g_bMinorObstacle = True
 		If _Sleep(500) Then Return
 		Return False

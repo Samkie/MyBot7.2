@@ -277,6 +277,11 @@ Func btnTestTrain()
 
 ;~  	_ArrayDisplay($MyTroops)
 
+;~ 		If checkProfileCorrect() = True Then
+;~ 			SetLog("Profile match with village.png, profile loaded correctly.", $COLOR_INFO)
+;~ 		Else
+;~ 			SetLog("Profile not match with village.png, profile load failed.", $COLOR_ERROR)
+;~ 		EndIf
 
 	BeginImageTest()
 
