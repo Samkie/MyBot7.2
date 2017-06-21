@@ -39,7 +39,28 @@ Func IsTrainPage($bSetLog = True, $iLoop = 30)
 
 	If $bSetLog Then SetLog("Cannot find Army Window...", $COLOR_ERROR) ; in case of $i = 29 in while loop
 	If $g_iDebugImageSave = 1 Then DebugImageSave("IsTrainPage")
-	If $iLoop > 1 Then AndroidPageError("IsTrainPage")
+	If $iLoop > 1 Then
+		AndroidPageError("IsTrainPage")
+	Else
+		; samm0d - try to fix Army window not found
+		AndroidBackButton()
+		If _Sleep($DELAYISTRAINPAGE2) Then Return False ; 1s Delay
+		; check is that on village
+		If TestCapture() Then
+			_CaptureRegion()
+			If _CheckPixel($aIsMain, $g_bNoCapturePixel) = True Then ;Checks for Main Screen
+				If $g_bUseRandomClick = False Then
+					Click($aArmyTrainButton[0], $aArmyTrainButton[1], 1, 0, "#1293") ; Button Army Overview
+				Else
+					ClickR($aArmyTrainButtonRND, $aArmyTrainButton[0], $aArmyTrainButton[1], 1, 0)
+				EndIf
+				If _Sleep($DELAYISTRAINPAGE2) Then Return False ; 1s Delay
+				If IsPageLoop($aIsTrainPgChk1, $iLoop) Then
+					Return True
+				EndIf
+			EndIf
+		EndIf
+	EndIf
 	Return False
 EndFunc   ;==>IsTrainPage
 

@@ -4,7 +4,7 @@
 ; Syntax ........:getNextSwitchList()
 ; Parameters ....:
 ; Return values .: None
-; Author ........: Samkie (19 JUN, 2017)
+; Author ........: Samkie (21 JUN, 2017)
 ; Modified ......:
 ; Remarks .......:
 ; Related .......:
@@ -48,7 +48,7 @@ Func SelectGoogleAccount($iSlot)
 		If $iCount > 10 Then
 			SetLog("Cannot load setting page, restart game...", $COLOR_RED)
 			CloseCoC(True)
-			If _Sleep(10000) Then Return False
+			Wait4Main()
 			Return False
 		EndIf
 		If _Sleep(1000) Then Return False
@@ -68,27 +68,36 @@ Func SelectGoogleAccount($iSlot)
 	While Not _ColorCheck(_GetPixelColor(160, 380,True), Hex(0xFFFFFF, 6),10)
 		If $iSamM0dDebug Then SetLog("wait for google account page Color: " & _GetPixelColor(160, 380,True))
 		$iCount += 1
-		If $iCount > 20 Then
+		If $iCount > 30 Then
 			SetLog("Cannot load google account page, restart game...", $COLOR_RED)
 			CloseCoC(True)
-			If _Sleep(10000) Then Return False
+			Wait4Main()
 			Return False
 		EndIf
 		If _Sleep(1000) Then Return False
 	WEnd
 
-	If _Sleep(250) Then Return False
-	Local $iTotalAcc = getTotalGoogleAccount()
-	If $iTotalAcc < $iSlot + 1 Then
-		SetLog("You cannot select account slot " & $iSlot + 1 & ", because you only got total: " & $iTotalAcc, $COLOR_RED)
-		AndroidBackButton()
-		If _Sleep(500) Then Return False
-		AndroidBackButton()
-		BotStop()
-		Return False
-	Else
-		Click(241, 84 + $iSlotYOffset + ($iSlot * 72), 1, 0, "#GASe")
-	EndIf
+	$iCount = 0
+	Local $bErrorFlag = 0
+	While $iCount <= 10
+		If _Sleep(1000) Then Return False
+		Local $iTotalAcc = getTotalGoogleAccount()
+		If $iTotalAcc < $iSlot + 1 Then
+			$bErrorFlag += 1
+			If $bErrorFlag >= 3 Then
+				SetLog("You cannot select account slot " & $iSlot + 1 & ", because you only got total: " & $iTotalAcc, $COLOR_RED)
+				AndroidBackButton()
+				If _Sleep(500) Then Return False
+				AndroidBackButton()
+				BotStop()
+				Return False
+			EndIf
+		Else
+			Click(241, 84 + $iSlotYOffset + ($iSlot * 72), 1, 0, "#GASe")
+			ExitLoop
+		EndIf
+		$iCount += 1
+	WEnd
 
 	Local $iResult
 	$iResult = DoLoadVillage()
@@ -137,7 +146,7 @@ Func DoLoadVillage()
 		If $iCount = 20 Then
 			SetLog("Cannot load village load button, restart game...", $COLOR_RED)
 			CloseCoC(True)
-			If _Sleep(10000) Then Return
+			Wait4Main()
 		EndIf
 		If $iCount >= 30 Then
 			Return 0
@@ -160,7 +169,7 @@ Func DoConfirmVillage()
 		If $iCount > 15 Then
 			SetLog("Cannot load village confirm button, restart game...", $COLOR_RED)
 			CloseCoC(True)
-			If _Sleep(10000) Then Return
+			Wait4Main()
 			Return False
 		EndIf
 		If _Sleep(1000) Then Return False
@@ -170,7 +179,7 @@ Func DoConfirmVillage()
 	If SendText("CONFIRM") = 0 Then
 		SetLog("Cannot type CONFIRM to emulator, restart game...", $COLOR_RED)
 		CloseCoC(True)
-		If _Sleep(10000) Then Return
+		Wait4Main()
 		Return False
 	EndIf
 	If _Sleep(500) Then Return False
@@ -181,7 +190,7 @@ Func DoConfirmVillage()
 		If $iCount > 15 Then
 			SetLog("Cannot confirm village Okay button, restart game...", $COLOR_RED)
 			CloseCoC(True)
-			If _Sleep(10000) Then Return
+			Wait4Main()
 			Return False
 		EndIf
 		If _Sleep(1000) Then Return False
@@ -478,7 +487,7 @@ Func DoSwitchAcc()
 			Else
 				SetLog("Cannot find setting button.",$COLOR_RED)
 				CloseCoC(True)
-				If _Sleep(10000) Then Return
+				Wait4Main()
 				$g_bRestart = True
 			EndIf
 		EndIf
@@ -983,9 +992,9 @@ EndFunc
 
 Func btnMakeSwitchADBFolder()
 	_CaptureRegion()
-	If _ColorCheck(_GetPixelColor($aButtonClose3[4], $aButtonClose3[5], True), Hex($aButtonClose3[6], 6), Number($aButtonClose3[7])) Then
+	If _ColorCheck(_GetPixelColor($aButtonClose3[4], $aButtonClose3[5], $g_bNoCapturePixel), Hex($aButtonClose3[6], 6), Number($aButtonClose3[7])) Then
 		Local $iSecondBaseTabHeight
-		If _ColorCheck(_GetPixelColor(146, 146, True), Hex(0XB8B8A8,6), 10) = True Then
+		If _ColorCheck(_GetPixelColor(146, 146, $g_bNoCapturePixel), Hex(0XB8B8A8,6), 10) = True Then
 			$iSecondBaseTabHeight = 49
 		Else
 			$iSecondBaseTabHeight = 0
@@ -1086,27 +1095,35 @@ Func checkProfileCorrect()
 		Local $bVillagePageFlag = False
 		Local $iSecondBaseTabHeight
 
+		; Waiting for profile page fully load.
+		ForceCaptureRegion()
+		$iCount = 0
+		While 1
+			_CaptureRegion()
+			If _ColorCheck(_GetPixelColor(250, 95, $g_bNoCapturePixel), Hex(0XE8E8E0,6), 10) = True And _ColorCheck(_GetPixelColor(360, 145, $g_bNoCapturePixel), Hex(0XE8E8E0,6), 10) = False Then
+				ExitLoop
+			EndIf
+			If _Sleep(250) Then Return False
+			$iCount += 1
+			If $iCount > 40 Then ExitLoop
+		WEnd
+
 		$iCount = 0
 		$iImageNotMatchCount = 0
-		ForceCaptureRegion()
-		If _ColorCheck(_GetPixelColor(146, 146, True), Hex(0XB8B8A8,6), 10) = True Then
-			$iSecondBaseTabHeight = 49
-		Else
-			$iSecondBaseTabHeight = 0
-		EndIf
 
 		While 1
-			ForceCaptureRegion()
-			If _ColorCheck(_GetPixelColor(146, 146, True), Hex(0XB8B8A8,6), 10) = True Then
+			_CaptureRegion()
+			If _ColorCheck(_GetPixelColor(146, 146, $g_bNoCapturePixel), Hex(0XB8B8A8,6), 10) = True Then
 				$iSecondBaseTabHeight = 49
 			Else
 				$iSecondBaseTabHeight = 0
 			EndIf
 
-			If $iSamM0dDebug = 1 Then SetLog("_GetPixelColor(85, " & 163 + $iSecondBaseTabHeight & ", True): " & _GetPixelColor(85, 163 + $iSecondBaseTabHeight, True))
-			If $iSamM0dDebug = 1 Then SetLog("_GetPixelColor(20, " & 295 + $iSecondBaseTabHeight & ", True): " & _GetPixelColor(20, 295 + $iSecondBaseTabHeight, True))
+			If $iSamM0dDebug = 1 Then SetLog("_GetPixelColor(85, " & 163 + $iSecondBaseTabHeight & ", True): " & _GetPixelColor(85, 163 + $iSecondBaseTabHeight, $g_bNoCapturePixel))
+			If $iSamM0dDebug = 1 Then SetLog("_GetPixelColor(20, " & 295 + $iSecondBaseTabHeight & ", True): " & _GetPixelColor(20, 295 + $iSecondBaseTabHeight, $g_bNoCapturePixel))
 
-			$bVillagePageFlag = _ColorCheck(_GetPixelColor(85, 163 + $iSecondBaseTabHeight, True), Hex(0X959AB6,6), 20) = True And _ColorCheck(_GetPixelColor(20, 295 + $iSecondBaseTabHeight, True), Hex(0X4E4D79,6), 10) = True
+			$bVillagePageFlag = _ColorCheck(_GetPixelColor(85, 163 + $iSecondBaseTabHeight, $g_bNoCapturePixel), Hex(0X959AB6,6), 20) = True And _ColorCheck(_GetPixelColor(20, 295 + $iSecondBaseTabHeight, $g_bNoCapturePixel), Hex(0X4E4D79,6), 10) = True
+
 			If $bVillagePageFlag = True Then
 				_CaptureRegion(68,125 + $iSecondBaseTabHeight,155,146 + $iSecondBaseTabHeight)
 				Local $result = DllCall($g_hLibImgLoc, "str", "FindTile", "handle", $g_hHBitmap, "str", @ScriptDir & "\profiles\" & $g_sProfileCurrentName & "\village_92.png", "str", "FV", "int", 1)

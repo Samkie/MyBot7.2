@@ -1,11 +1,10 @@
-
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: getMyArmySpellCount
 ; Description ...: Obtains count of spells available from Training - Army Overview window
 ; Syntax ........: getMyArmySpellCount()
 ; Parameters ....:
 ; Return values .: None
-; Author ........: Samkie (19 JUN 2017)
+; Author ........: Samkie (22 JUN 2017)
 ; Modified ......:
 ; Remarks .......: This file is part of MyBot, previously known as ClashGameBot. Copyright 2015-2016
 ;                  MyBot is distributed under the terms of the GNU GPL
@@ -32,24 +31,21 @@ Func getMyArmySpellCount($bOpenArmyWindow = False, $bCloseArmyWindow = False, $t
 	Local $iTotalSpellSpace = 0, $iCount = 0
 	Local $SpellQ, $Result, $aFindResult
 	Local $bDeletedExcess = False
-;~ 	Local $bSpellTrainNotCorrectly = False
-	;getArmySpellTime()
-	;If _Sleep(10) Then Return ; 10ms improve pause button response
 
 	getMyArmySpellCapacity()
 	If _Sleep(10) Then Return ; 10ms improve pause button response
 
+	; reset Global variables
+	For $i = $enumLightning To $enumSkeleton
+		Assign("Cur" & $MySpells[$i][0] & "Spell", 0)
+		Assign("Cur" & $g_asSpellShortNames[$i], 0)
+	Next
+	For $i = 0 To 6
+		Assign("RemSpellSlot" & $i + 1, 0)
+	Next
+
 	If $g_iTotalSpellValue > 0 Or $test = True Then ; only use this code if the user had input spells to brew ... and assign the spells quantity
 		While $iTotalSpellSpace = 0 And $g_iSpellFactorySize > 0
-			; reset Global variables
-			For $i = $enumLightning To $enumSkeleton
-				Assign("Cur" & $MySpells[$i][0] & "Spell", 0)
-				Assign("Cur" & $g_asSpellShortNames[$i], 0)
-			Next
-			For $i = 0 To 6
-				Assign("RemSpellSlot" & $i + 1, 0)
-			Next
-
 			Local $sRegion = 23 & "," & 354 + $g_iMidOffsetY & "," & 536 & "," & 368 + $g_iMidOffsetY ; total 7 slots for detect what spell inside the region
 			$aFindResult = getSpellTypeAndSlot($sRegion)
 			If $aFindResult <> "" Then
@@ -100,6 +96,15 @@ Func getMyArmySpellCount($bOpenArmyWindow = False, $bCloseArmyWindow = False, $t
 							$iCount = 0
 							$iTotalSpellSpace = 0
 							getMyArmySpellCapacity()
+
+							; reset Global variables
+							For $i = $enumLightning To $enumSkeleton
+								Assign("Cur" & $MySpells[$i][0] & "Spell", 0)
+								Assign("Cur" & $g_asSpellShortNames[$i], 0)
+							Next
+							For $i = 0 To 6
+								Assign("RemSpellSlot" & $i + 1, 0)
+							Next
 							ContinueLoop
 						Else
 							Return
@@ -148,6 +153,7 @@ Func getMyArmySpellCount($bOpenArmyWindow = False, $bCloseArmyWindow = False, $t
 					; reset Global variables
 					; - important for if all spells remove will cause $g_iSpellFactorySize = 0 then exit loop
 					; - If not reset variable CurSpell will cause custom spell cannot brew spell
+
 					For $i = $enumLightning To $enumSkeleton
 						Assign("Cur" & $MySpells[$i][0] & "Spell", 0)
 						Assign("Cur" & $g_asSpellShortNames[$i], 0)
@@ -155,7 +161,6 @@ Func getMyArmySpellCount($bOpenArmyWindow = False, $bCloseArmyWindow = False, $t
 					For $i = 0 To 6
 						Assign("RemSpellSlot" & $i + 1, 0)
 					Next
-
 					ContinueLoop
 				EndIf
 
@@ -177,6 +182,15 @@ Func getMyArmySpellCount($bOpenArmyWindow = False, $bCloseArmyWindow = False, $t
 			; reduce some speed
 			If _Sleep(500) Then Return
 			getMyArmySpellCapacity()
+
+			; reset Global variables
+			For $i = $enumLightning To $enumSkeleton
+				Assign("Cur" & $MySpells[$i][0] & "Spell", 0)
+				Assign("Cur" & $g_asSpellShortNames[$i], 0)
+			Next
+			For $i = 0 To 6
+				Assign("RemSpellSlot" & $i + 1, 0)
+			Next
 		WEnd
 	EndIf
 

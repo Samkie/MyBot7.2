@@ -4,7 +4,7 @@
 ; Syntax ........: CustomTrain(),DoCheckReVamp($bDoFullTrain = False)
 ; Parameters ....:
 ; Return values .: None
-; Author ........: Samkie (1 Jun, 2017)
+; Author ........: Samkie (21 Jun, 2017)
 ; Remarks .......: This file is part of MyBot, previously known as ClashGameBot. Copyright 2015-2016
 ;                  MyBot is distributed under the term
 ; Related .......:
@@ -58,24 +58,6 @@ Func CustomTrain()
 	getMyArmyCapacity()
 	If _Sleep(50) Then Return ; 10ms improve pause button response
 
-;~ 	If $g_bQuickTrainEnable = 1 Then
-;~ 		If Int($g_CurrentCampUtilization / $g_iTotalCampSpace * 100) >= 95 And $g_CurrentCampUtilization <> $g_iTotalCampSpace Then
-;~ 			Setlog("Check troops queue in train, is that any troops stuck...")
-;~ 			If gotoTrainTroops() Then
-;~ 				If _Sleep(1000) Then Return
-;~ 				If _ColorCheck(_GetPixelColor(808, 156 + $g_iMidOffsetY, True), Hex(0xD7AFA9, 6), 10) Then ; pink color
-;~ 					RemoveAllTroopAlreadyTrain()
-;~ 					If _Sleep(1000) Then Return
-;~ 				Else
-;~ 					Setlog("Troops train working fine.",$COLOR_SUCCESS)
-;~ 				EndIf
-;~ 			Else
-;~ 				SetLog("Cannot open train troops tab page.",$COLOR_ERROR)
-;~ 				Return
-;~ 			EndIf
-;~ 		EndIf
-;~ 		QuickTrain($iCmbCurrentArmy, False)
-;~ 	Else
 		getArmyTroopTime()
 		If _Sleep(50) Then Return
 
@@ -182,7 +164,7 @@ Func CustomTrain()
 			EndIf
 			Local $iStickDelay
 			If $g_aiTimeTrain[0] < 1 Then
-				$iStickDelay = Int($g_aiTimeTrain[0] * 60000) + 250
+				$iStickDelay = Int($g_aiTimeTrain[0] * 60000)
 			ElseIf $g_aiTimeTrain[0] >= 2 Then
 				$iStickDelay = 60000
 			Else
@@ -194,19 +176,21 @@ Func CustomTrain()
 			getArmyTroopTime()
 			If _Sleep(50) Then Return
 		WEnd
-;~ 	EndIf
 
 	If $g_iDebugSetlogTrain = 1 Then SetLog("$tempDisableBrewSpell: " & $tempDisableBrewSpell)
 
+	Local $bCannotBeIgnoreTroopTime = False
 	If $tempDisableBrewSpell = False Then
 		If _Sleep(50) Then Return
 		CustomSpells()
+		$bCannotBeIgnoreTroopTime = True
 	Else
 		; continue check getMyArmySpellCount() until $g_bFullArmySpells = True
 		If $g_bFullArmySpells = False Then
 			If gotoArmy() Then
 				If _Sleep(50) Then Return
 				getMyArmySpellCount()
+				$bCannotBeIgnoreTroopTime = True
 			EndIf
 		EndIf
 	EndIf
@@ -214,7 +198,7 @@ Func CustomTrain()
 	If $ichkEnableMySwitch = 1 Then
 		If gotoArmy() Then
 			Local $iKTime[5] = [0,0,0,0,0]
-			getArmyTroopTime(False,False)
+			If $bCannotBeIgnoreTroopTime Then getArmyTroopTime(False,False)
 			$iKTime[4] = $g_aiTimeTrain[0]
 			If BitAND($g_aiSearchHeroWaitEnable[$DB], $eHeroKing) = $eHeroKing Or BitAND($g_aiSearchHeroWaitEnable[$LB], $eHeroKing) = $eHeroKing Then
 				$iKTime[0] = getArmyHeroTime($eHeroKing)

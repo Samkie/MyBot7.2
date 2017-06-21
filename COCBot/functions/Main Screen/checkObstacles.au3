@@ -213,7 +213,7 @@ Func _checkObstacles() ;Checks if something is in the way for mainscreen
 
 	; prevent close train page failed, and get builder failed
 	If _CheckPixel($aIsTrainPgChk1, $g_bNoCapturePixel) Then
-		ClickP($aAway, 1, 0, "#0000") ;Click Away
+		AndroidBackButton()
 		$g_bMinorObstacle = True
 		If _Sleep(1000) Then Return
 		Return False

@@ -127,7 +127,7 @@ Func CustomSpells()
 					If $bWait4Spell Then
 						Local $iStickDelay
 						If $iBrewSpellTime < 1 Then
-							$iStickDelay = Int($iBrewSpellTime * 60000) + 250
+							$iStickDelay = Int($iBrewSpellTime * 60000)
 						ElseIf $iBrewSpellTime >= 2 Then
 							$iStickDelay = 60000
 						Else

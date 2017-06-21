@@ -25,22 +25,6 @@ Func checkMainScreen($Check = True) ;Checks if in main screen
 	If TestCapture() = False Then
 		If CheckAndroidRunning(False) = False Then Return
 		getBSPos() ; Update $g_hAndroidWindow and Android Window Positions
-		#cs
-			If $g_bChkBackgroundMode = False And $NoFocusTampering = False And $g_bAndroidEmbedded = False Then
-			Local $hTimer = __TimerInit(), $g_hAndroidWindowActive = -1
-			Local $activeHWnD = WinGetHandle("")
-			While __TimerDiff($hTimer) < 1000 And $g_hAndroidWindowActive <> $g_hAndroidWindow And Not _Sleep(100)
-			getBSPos() ; update $g_hAndroidWindow
-			$g_hAndroidWindowActive = WinActivate($g_hAndroidWindow) ; ensure bot has window focus
-			WEnd
-			If $g_hAndroidWindowActive <> $g_hAndroidWindow Then
-			; something wrong with window, restart Android
-			RebootAndroid()
-			Return
-			EndIf
-			WinActivate($activeHWnD) ; restore current active window
-			EndIf
-		#ce
 		WinGetAndroidHandle()
 		If $g_bChkBackgroundMode = False And $g_hAndroidWindow <> 0 Then
 			; ensure android is top
