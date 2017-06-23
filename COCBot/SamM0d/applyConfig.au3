@@ -19,6 +19,15 @@
 ;~ cmbDeployDB()
 ;~ cmbDeployAB()
 
+; prevent over donate
+If $ichkEnableLimitDonateUnit = 1 Then
+	GUICtrlSetState($chkEnableLimitDonateUnit, $GUI_CHECKED)
+Else
+	GUICtrlSetState($chkEnableLimitDonateUnit, $GUI_UNCHECKED)
+EndIf
+GUICtrlSetData($txtLimitDonateUnit, $itxtLimitDonateUnit)
+
+
 ; Unit Wave Factor
 If $ichkUnitFactor = 1 Then
 	GUICtrlSetState($chkUnitFactor, $GUI_CHECKED)

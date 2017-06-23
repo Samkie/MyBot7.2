@@ -52,8 +52,7 @@ Func getMyArmyTroopCount($bOpenArmyWindow = False, $bCloseArmyWindow = False, $t
 	Local $bDeletedExcess = False
 	While $AvailableCamp = 0 And $g_CurrentCampUtilization > 0
 		Local $iCount2 = 0
-		While (_ColorCheck(_GetPixelColor(228, 160 + $g_iMidOffsetY , True), Hex(0xFEFEFE, 6), 5) And _ColorCheck(_GetPixelColor(326, 160 + $g_iMidOffsetY , True), Hex(0xFEFEFE, 6), 5)) Or _ColorCheck(_GetPixelColor(498, 184 + $g_iMidOffsetY , True), Hex(0xFFFFFF, 6), 5) Or _ColorCheck(_GetPixelColor(357, 183 + $g_iMidOffsetY , True), Hex(0xFFFFFF, 6), 5)
-			If $g_iDebugSetlogTrain = 1 Then SetLog("Donate or other message blocked screen, postpone action.",$COLOR_RED)
+		While IsQueueBlockByMsg()
 			If _Sleep(1000) Then Return
 			$iCount2 += 1
 			If $iCount2 >= 30 Then

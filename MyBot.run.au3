@@ -647,20 +647,31 @@ Func runBot() ;Bot that runs everything in order
 		$FullCCTroops = False
 		$bDonateAwayFlag = False
 		$tempDisableBrewSpell = False
+		$tempDisableTrain = False
+		$bAvoidSwitch = False
+
 		$g_iCommandStop = -1
 		If _Sleep($DELAYRUNBOT1) Then Return
 		checkMainScreen()
 		If $g_bRestart = True Then ContinueLoop
 
+
 		; samm0d switch
 		If $ichkEnableMySwitch Then
-			$bUpdateStats = True
-			If $g_bIsClientSyncError = False And $g_bIsSearchLimit = False And ($g_bQuickAttack = False) Then
-				DoSwitchAcc()
-				If $g_bRestart = True Then ContinueLoop
-			EndIf
-			$iDoPerformAfterSwitch = True
-			If $g_iTownHallLevel = 0 Then BotDetectFirstTime()
+			If $iSamM0dDebug Then SetLog("$bAvoidSwitch: " & $bAvoidSwitch)
+;~ 			If $bAvoidSwitch = False Then
+				$bUpdateStats = True
+				If $g_bIsClientSyncError = False And $g_bIsSearchLimit = False And ($g_bQuickAttack = False) Then
+					DoSwitchAcc()
+					If $g_bRestart = True Then ContinueLoop
+				EndIf
+				$iDoPerformAfterSwitch = True
+				If $g_iTownHallLevel = 0 Then BotDetectFirstTime()
+;~ 			Else
+;~ 				SetLog("Avoid switch, troops getting ready or soon.", $COLOR_INFO)
+;~ 			EndIf
+			; reset variable
+;~ 			$bAvoidSwitch = False
 		EndIf
 
 		PrepareDonateCC()
@@ -990,17 +1001,29 @@ Func Idle() ;Sequence that runs until Full Army
 		If $ichkEnableMySwitch Then
 			; perform switch acc since army still need waiting
 			If $g_bIsFullArmywithHeroesAndSpells = False Then
-;~ 				$bChangeNextAcc = True
-				$g_bRestart = True
-				ExitLoop
+				If $ichkEnableContinueStay = 1 Then
+					If $bAvoidSwitch = False Then
+						$g_bRestart = True
+						ExitLoop
+					Else
+						SetLog("Avoid switch, troops getting ready or soon.", $COLOR_INFO)
+					EndIf
+				Else
+					$g_bRestart = True
+					ExitLoop
+				EndIf
 			Else
 				; if donate type acc, perform switch account too
 				If $iCurActiveAcc <> -1 Then
 					For $i = 0 To UBound($aSwitchList) - 1
 						If $aSwitchList[$i][4] = $iCurActiveAcc Then
 							If $aSwitchList[$i][2] = 1 Then
+								If $ichkEnableContinueStay = 1 Then
+									$bAvoidSwitch = False
+								EndIf
 								$g_bRestart = True
 							EndIf
+							ExitLoop
 						EndIf
 					Next
 				EndIf
@@ -1013,6 +1036,7 @@ Func AttackMain() ;Main control for attack functions
 	;LoadAmountOfResourcesImages() ; for debug
 	; samm0d
 	;getArmyCapacity(True, True)
+
 	If IsSearchAttackEnabled() Then
 		If (IsSearchModeActive($DB) And checkCollectors(True, False)) Or IsSearchModeActive($LB) Or IsSearchModeActive($TS) Then
 			If $g_bUseCCBalanced = True Then ;launch profilereport() only if option balance D/R it's activated

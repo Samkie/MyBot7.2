@@ -454,6 +454,18 @@ Func chkEnableCustomOCR4CCRequest()
 	EndIf
 EndFunc
 
+Func chkEnableLimitDonateUnit()
+	If GUICtrlRead($chkEnableLimitDonateUnit) = $GUI_CHECKED Then
+		$ichkEnableLimitDonateUnit = 1
+	Else
+		$ichkEnableLimitDonateUnit = 0
+	EndIf
+EndFunc
+
+Func txtLimitDonateUnit()
+	$itxtLimitDonateUnit = GUICtrlRead($txtLimitDonateUnit)
+EndFunc
+
 Func chkDebugMyOcr()
 	If GUICtrlRead($chkDebugMyOcr) = $GUI_CHECKED Then
 		$MyOcrDebug = 1

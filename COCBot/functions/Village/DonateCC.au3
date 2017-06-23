@@ -295,7 +295,13 @@ Func DonateCC($Check = False)
 					Setlog("No spells available, skip spell donation...", $COLOR_ORANGE)
 					$g_bSkipDonSpells = True
 				EndIf
-
+				; samm0d
+				If $ichkEnableLimitDonateUnit Then
+					If $iDonatedUnit >= $itxtLimitDonateUnit Then
+						Setlog("Reach donate unit limit, skip troop donation...", $COLOR_ACTION)
+						$g_bSkipDonTroops = True
+					EndIf
+				EndIf
 			EndIf
 
 			If $g_bSkipDonTroops And $g_bSkipDonSpells Then
@@ -418,7 +424,7 @@ Func DonateCC($Check = False)
 				EndIf
 
 			Else
-				If $donateCCfilter Then
+				If $donateCCfilter And (($bDonateTroop = 1 And $g_bSkipDonTroops = False) Or ($bDonateSpell = 1 And $g_bSkipDonSpells = False)) Then
 					SetLog("Skip: Keyword or space not match with this request.",$COLOR_RED)
 				EndIf
 			EndIf
@@ -749,6 +755,14 @@ Func DonateTroopType(Const $iTroopIndex, $Quant = 0, Const $Custom = False, Cons
 			_ColorCheck(_GetPixelColor(360 + ($Slot * 68), $g_iDonationWindowY + 107 + $YComp, True), Hex(0x306ca8, 6), 20) Then ; check for 'blue'
 
 		If $Custom Then
+			; samm0d
+			If $ichkEnableLimitDonateUnit Then
+				If $iDonatedUnit + $Quant > $itxtLimitDonateUnit Then
+					SetLog("Reach donate limit, reduce donate unit " & $Quant & " to " & $itxtLimitDonateUnit - $iDonatedUnit)
+					$Quant = $itxtLimitDonateUnit - $iDonatedUnit
+				EndIf
+			EndIf
+
 			If $bDonateAll Then $sTextToAll = " (to all requests)"
 			SetLog("Donating " & $Quant & " " & ($Quant > 1 ? $g_asTroopNamesPlural[$iTroopIndex] : $g_asTroopNames[$iTroopIndex]) & $sTextToAll, $COLOR_SUCCESS)
 
@@ -764,6 +778,7 @@ Func DonateTroopType(Const $iTroopIndex, $Quant = 0, Const $Custom = False, Cons
 				; Use slow click when the Train system is Quicktrain
 				If $g_bQuickTrainEnable Then
 					Local $icount = 0
+
 					For $x = 0 To $Quant
 						If _ColorCheck(_GetPixelColor(350 + ($Slot * 68), $g_iDonationWindowY + 105 + $YComp, True), Hex(0x306ca8, 6), 20) Or _
 								_ColorCheck(_GetPixelColor(355 + ($Slot * 68), $g_iDonationWindowY + 106 + $YComp, True), Hex(0x306ca8, 6), 20) Or _
@@ -776,12 +791,15 @@ Func DonateTroopType(Const $iTroopIndex, $Quant = 0, Const $Custom = False, Cons
 							EndIf
 							; samm0d
 							$bJustMakeDonate = True
+							$tempDisableTrain = False
+							$iDonatedUnit += 1
 
 							If _Sleep(1000) Then Return
 							$icount += 1
 						EndIf
 					Next
 					$Quant = $icount ; Count Troops Donated Clicks
+
 					$g_aiDonateStatsTroops[$iTroopIndex][0] += $Quant
 				Else
 					If _ColorCheck(_GetPixelColor(350 + ($Slot * 68), $g_iDonationWindowY + 105 + $YComp, True), Hex(0x306ca8, 6), 20) Or _
@@ -790,12 +808,15 @@ Func DonateTroopType(Const $iTroopIndex, $Quant = 0, Const $Custom = False, Cons
 
 						Click(365 + ($Slot * 68), $g_iDonationWindowY + 100 + $YComp, $Quant, $DELAYDONATECC3, "#0175")
 						$g_aiDonateStatsTroops[$iTroopIndex][0] += $Quant
+
 						If $g_iCommandStop = 3 Then
 							$g_iCommandStop = 0
 							$g_bFullArmy = False
 						EndIf
 						; samm0d
+						$iDonatedUnit += $Quant
 						$bJustMakeDonate = True
+						$tempDisableTrain = False
 					EndIf
 				EndIf
 
@@ -820,6 +841,13 @@ Func DonateTroopType(Const $iTroopIndex, $Quant = 0, Const $Custom = False, Cons
 			EndIf
 			If $g_iDebugOCRdonate = 0 Then
 				; Use slow click when the Train system is Quicktrain
+				; samm0d
+				If $ichkEnableLimitDonateUnit Then
+					If $iDonatedUnit + $g_iDonTroopsQuantity > $itxtLimitDonateUnit Then
+						SetLog("Reach donate limit, reduce donate unit " & $g_iDonTroopsQuantity & " to " & $itxtLimitDonateUnit - $iDonatedUnit)
+						$g_iDonTroopsQuantity = $itxtLimitDonateUnit - $iDonatedUnit
+					EndIf
+				EndIf
 				If $g_bQuickTrainEnable = True Then
 					Local $icount = 0
 					For $x = 0 To $g_iDonTroopsQuantity
@@ -835,6 +863,8 @@ Func DonateTroopType(Const $iTroopIndex, $Quant = 0, Const $Custom = False, Cons
 							EndIf
 							; samm0d
 							$bJustMakeDonate = True
+							$tempDisableTrain = False
+							$iDonatedUnit += 1
 
 							If _Sleep(1000) Then Return
 						EndIf
@@ -854,6 +884,8 @@ Func DonateTroopType(Const $iTroopIndex, $Quant = 0, Const $Custom = False, Cons
 						EndIf
 						; samm0d
 						$bJustMakeDonate = True
+						$tempDisableTrain = False
+						$iDonatedUnit += $g_iDonTroopsQuantity
 					EndIf
 				EndIf
 

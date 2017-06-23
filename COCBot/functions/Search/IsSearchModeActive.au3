@@ -39,9 +39,15 @@ Func IsSearchModeActive($g_iMatchMode, $nocheckHeroes = False, $bNoLog = False)
 
 	Local $totalSpellsToBrew = 0
 	;--- To Brew
-	For $i = 0 To $eSpellCount - 1
-		$totalSpellsToBrew += $g_aiArmyCompSpells[$i]
-	Next
+	If $ichkCustomTrain = 1 Then
+		For $i = 0 To 9
+			$totalSpellsToBrew += Eval("i" & $MySpells[$i][0] & "SpellComp") * $MySpells[$i][2]
+		Next
+	Else
+		For $i = 0 To $eSpellCount - 1
+			$totalSpellsToBrew += $g_aiArmyCompSpells[$i]
+		Next
+	EndIf
 
 	If GetCurTotalSpell() = $totalSpellsToBrew And $g_abSearchSpellsWaitEnable[$g_iMatchMode] Then
 		$g_bCheckSpells = True

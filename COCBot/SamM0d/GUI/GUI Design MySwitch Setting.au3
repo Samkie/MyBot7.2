@@ -28,8 +28,22 @@ For $i = 0 To 7
 		GUICtrlSetData(-1, "0|5|10|15","0")
 		_GUICtrlSetTip(-1, "Setting for Stay how long (minutes) with this account.")
 		GUICtrlSetOnEvent(-1, "chkEnableAcc")
-	$y += 30
+	$y += 28
 Next
+
+$y += 10
+$chkEnableContinueStay = GUICtrlCreateCheckbox(GetTranslatedFileIni("sam m0d", "ContinueStay", "Avoid switch, if troops getting ready within [Minute(s)]: "), $x, $y, -1, -1)
+	GUICtrlSetOnEvent(-1, "chkEnableAcc")
+
+$txtTrainTimeLeft = GUICtrlCreateInput("300", $x + 290, $y+2, 35, 20, BitOR($GUI_SS_DEFAULT_INPUT, $ES_CENTER, $ES_NUMBER))
+	_GUICtrlSetTip(-1, GetTranslatedFileIni("sam m0d", "ContinueStayValue", "Please enter how many minute(s)"))
+	GUICtrlSetLimit(-1, 2)
+	GUICtrlSetOnEvent(-1, "chkEnableAcc")
+
+$y += 25
+$chkForcePreTrainB4Switch = GUICtrlCreateCheckbox(GetTranslatedFileIni("sam m0d", "ForcePreTrainWhenSwitch", "Force pre-train troops for attack type account before switch."), $x, $y, -1, -1)
+	GUICtrlSetOnEvent(-1, "chkEnableAcc")
+
 
 GUICtrlCreateGroup("", -99, -99, 1, 1)
 

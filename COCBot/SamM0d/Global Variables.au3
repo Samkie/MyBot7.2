@@ -31,6 +31,8 @@ Global $ichkDropCCFirst = 0
 ;Global $BottomLeftOri[5][2] = [[80, 394], [148, 446], [217, 497], [286, 549], [354, 600]]
 ;Global $BottomRightOri[5][2] = [[515, 610], [589, 554], [663, 497], [737, 443], [811, 384]]
 
+; Donate not over unit
+Global $ichkEnableLimitDonateUnit, $chkEnableLimitDonateUnit, $itxtLimitDonateUnit, $txtLimitDonateUnit, $iDonatedUnit
 
 ; auto hide emulator, minimize bot after start
 Global $chkAutoHideEmulator, $chkAutoMinimizeBot
@@ -38,7 +40,6 @@ Global $g_bChkAutoHideEmulator = False
 Global $g_bFlagHideEmulator = False
 Global $g_bChkAutoMinimizeBot = False
 Global $g_bFlagMinimizeBot = False
-
 
 ; unit wave factor
 Global $ichkUnitFactor
@@ -405,8 +406,9 @@ Global $iSortEnd = 0
 Global $bChangeNextAcc = True
 Global $grpMySwitch, $chkEnableMySwitch, $chkProfileImage, $g_hLblProfileName, $arrowleft2, $arrowright2, $btnMakeSwitchADBFolder, $chkUseADBLoadVillage
 Global $chkEnableAcc[8], $cmbWithProfile[8], $cmbAtkDon[8], $cmbStayTime[8]
-
+Global $ichkEnableContinueStay, $chkEnableContinueStay, $itxtTrainTimeLeft, $txtTrainTimeLeft, $ichkForcePreTrainB4Switch, $chkForcePreTrainB4Switch
 Global $ichkSwitchDonTypeOnlyWhenAtkTypeNotReady = False
+Global $bAvoidSwitch = False
 
 Global $aSwitchList[1][7]
 

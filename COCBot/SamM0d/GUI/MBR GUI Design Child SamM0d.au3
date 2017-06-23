@@ -662,6 +662,15 @@ $chkAutoMinimizeBot = GUICtrlCreateCheckbox(GetTranslatedFileIni("sam m0d", "Aut
 	GUICtrlSetOnEvent(-1, "chkAutoMinimizeBot")
 	GUICtrlSetState(-1, $GUI_UNCHECKED)
 
+$y += 25
+$chkEnableLimitDonateUnit = GUICtrlCreateCheckbox(GetTranslatedFileIni("sam m0d", "DonateLimit", "Limited units for each round troops donation, Unit(s): "), $x+10, $y, -1, -1)
+_GUICtrlSetTip(-1, GetTranslatedFileIni("sam m0d", "DonateLimitTips", "Prevent over donate the unit you are train for and mess up the troops queue"))
+	GUICtrlSetOnEvent(-1, "chkEnableLimitDonateUnit")
+
+$txtLimitDonateUnit = GUICtrlCreateInput("8", $x + 280, $y+2, 35, 20, BitOR($GUI_SS_DEFAULT_INPUT, $ES_CENTER, $ES_NUMBER))
+	_GUICtrlSetTip(-1, GetTranslatedFileIni("sam m0d", "DonateLimitValue", "Please enter the unit number for limited each round of troops donate."))
+	GUICtrlSetLimit(-1, 2)
+	GUICtrlSetOnEvent(-1, "txtLimitDonateUnit")
 
 GUICtrlCreateGroup("", -99, -99, 1, 1)
 

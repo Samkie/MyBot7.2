@@ -138,10 +138,11 @@ Func WaitForClouds()
 			;$g_bIsClientSyncError = True
 			;$Restart = True
 			SetLog("Something happened that cause back to main screen when searching village for attack.",$COLOR_ERROR)
+			$g_bIsClientSyncError = False ; disable fast OOS restart if not simple error and restarting CoC
+			$g_bRestart = True
 			Return
 		EndIf
 		;========================
-
 	WEnd
 
 	If $bEnabledGUI = True Then

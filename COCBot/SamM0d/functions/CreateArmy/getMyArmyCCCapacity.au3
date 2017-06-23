@@ -14,7 +14,7 @@
 ; Link ..........: https://github.com/MyBotRun/MyBot/wiki
 ; Example .......: No
 ; ===============================================================================================================================
-Func getArmyCCCapacity($bOpenArmyWindow = False, $bCloseArmyWindow = False)
+Func getMyArmyCCCapacity($bOpenArmyWindow = False, $bCloseArmyWindow = False)
 
 	If $g_iDebugSetlogTrain = 1 Or $g_iDebugSetlog = 1 Then SETLOG("Begin getCCCapacity:", $COLOR_DEBUG1)
 
@@ -92,5 +92,5 @@ Func getArmyCCCapacity($bOpenArmyWindow = False, $bCloseArmyWindow = False)
 		If _Sleep(500) Then Return
 	EndIf
 
-EndFunc   ;==>getArmyCCCapacity
+EndFunc   ;==>getMyArmyCCCapacity
 

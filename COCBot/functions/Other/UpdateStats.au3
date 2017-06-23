@@ -154,7 +154,7 @@ Func UpdateStats()
 		$iOldCurrentLoot[$eLootElixir] = $g_aiCurrentLoot[$eLootElixir]
 	EndIf
 
-	If $iOldCurrentLoot[$eLootDarkElixir] <> $g_aiCurrentLoot[$eLootDarkElixir] And $g_iStatsStartedWith[$eLootDarkElixir] <> "" Then
+	If ($iOldCurrentLoot[$eLootDarkElixir] <> $g_aiCurrentLoot[$eLootDarkElixir]) And ($g_iStatsStartedWith[$eLootDarkElixir] <> "") Then
 		GUICtrlSetData($g_hLblResultDeNow, _NumberFormat($g_aiCurrentLoot[$eLootDarkElixir], True))
 		$iOldCurrentLoot[$eLootDarkElixir] = $g_aiCurrentLoot[$eLootDarkElixir]
 	EndIf
@@ -508,8 +508,8 @@ Func UpdateStats()
 				GUICtrlSetState($g_hPicDarkLastAttack, $GUI_SHOW)
 				GUICtrlSetState($g_hPicHourlyStatsDark, $GUI_SHOW)
 
-				GUICtrlSetData($g_ahLblStatsStartedWith[$eLootDarkElixir], _NumberFormat($g_iStatsStartedWith[$eLootDarkElixir], True))
-				GUICtrlSetData($g_hLblResultDeNow, _NumberFormat($g_iStatsStartedWith[$eLootDarkElixir], True))
+				;GUICtrlSetData($g_ahLblStatsStartedWith[$eLootDarkElixir], _NumberFormat($g_iStatsStartedWith[$eLootDarkElixir], True))
+				;GUICtrlSetData($g_hLblResultDeNow, _NumberFormat($g_iStatsStartedWith[$eLootDarkElixir], True))
 			Else
 				GUICtrlSetState($g_hPicResultDEStart, $GUI_HIDE)
 				GUICtrlSetState($g_hPicDarkLoot, $GUI_HIDE)

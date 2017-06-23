@@ -16,6 +16,14 @@
 ; Multi Finger (LunaEclipse)
 IniWriteS($g_sProfileConfigPath, "MultiFinger", "Select", _GUICtrlComboBox_GetCurSel($cmbDBMultiFinger))
 
+; prevent over donate
+If GUICtrlRead($chkEnableLimitDonateUnit) = $GUI_CHECKED Then
+	IniWriteS($g_sProfileConfigPath, "PreventOverDonate", "Enable", 1)
+Else
+	IniWriteS($g_sProfileConfigPath, "PreventOverDonate", "Enable", 0)
+EndIf
+IniWriteS($g_sProfileConfigPath, "PreventOverDonate", "LimitValue", GUICtrlRead($txtLimitDonateUnit))
+
 ; Unit Wave Factor
 If GUICtrlRead($chkUnitFactor) = $GUI_CHECKED Then
 	IniWriteS($g_sProfileConfigPath, "SetSleep", "EnableUnitFactor", 1)

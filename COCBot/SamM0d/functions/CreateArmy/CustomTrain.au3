@@ -12,16 +12,13 @@
 ; Example .......: No
 ; ===============================================================================================================================
 
-Func CustomTrain()
-	Local $tempCounter = 0
-	Local $tempElixir = ""
-	Local $tempDElixir = ""
-	Local $tempElixirSpent = 0
-	Local $tempDElixirSpent = 0
-	Local $bNotStuckJustOnBoost = False
+Func CustomTrain($ForcePreTrain = False)
 
 	If $g_iDebugSetlogTrain = 1 Then SetLog("Func Train ", $COLOR_DEBUG)
 	If $g_bTrainEnabled = False Then Return
+
+	Local $bNotStuckJustOnBoost = False
+	Local $iCount = 0
 
 	StartGainCost()
 
@@ -49,20 +46,45 @@ Func CustomTrain()
 
 	If _Sleep(250) Then Return
 
+	$iCount = 0
+
+	While 1
+		getArmyTroopTime()
+		If _Sleep(50) Then Return
+
+		If $g_aiTimeTrain[0] > $itxtStickToTrainWindow Or $g_aiTimeTrain[0] <= 0 Then
+			ExitLoop
+		Else
+			Local $iStickDelay
+			If $g_aiTimeTrain[0] < 1 Then
+				$iStickDelay = Int($g_aiTimeTrain[0] * 60000)
+			ElseIf $g_aiTimeTrain[0] >= 2 Then
+				$iStickDelay = 60000
+			Else
+				$iStickDelay = 30000
+			EndIf
+			If _Sleep($iStickDelay) Then Return
+		EndIf
+		$iCount += 1
+		If $iCount > (10 + $itxtStickToTrainWindow) Then ExitLoop
+	WEnd
+
 	getMyArmyHeroCount()
 	If _Sleep(50) Then Return ; 10ms improve pause button response
 
-	getArmyCCCapacity()
+	getMyArmyCCCapacity()
 	If _Sleep(50) Then Return ; 10ms improve pause button response
 
 	getMyArmyCapacity()
 	If _Sleep(50) Then Return ; 10ms improve pause button response
 
-		getArmyTroopTime()
-		If _Sleep(50) Then Return
+	If $iSamM0dDebug = 1 Then SetLog("Before $tempDisableTrain: " & $tempDisableTrain)
 
+	If $tempDisableTrain = False Then
+
+	If $ForcePreTrain = False Then
 		; stick to train page until troop finish
-		Local $iCount = 0
+		$iCount = 0
 		While 1
 			If $bRestartCustomTrain Then $iCount = 0
 			$bRestartCustomTrain = False
@@ -72,7 +94,7 @@ Func CustomTrain()
 			If $g_bRestart = True Then Return
 
 			$iCount += 1
-			If $iCount > (10 + $itxtStickToTrainWindow) Then ExitLoop
+			If $iCount > 5 Then ExitLoop
 			If $g_aiTimeTrain[0] <= 0 Then
 				;getMyArmyCapacity()
 				;If _Sleep(50) Then Return
@@ -148,36 +170,47 @@ Func CustomTrain()
 					ExitLoop
 				EndIf
 			Else
-				If $ichkEnableDeleteExcessTroops = 1 Then
+				If $ichkEnableDeleteExcessTroops = 1 Or $g_bDropTrophyEnable = True Then
 					If _Sleep(50) Then Return
 					getMyArmyTroopCount()
 					If $bRestartCustomTrain Then ContinueLoop
 				EndIf
-
-				If $g_aiTimeTrain[0] > $itxtStickToTrainWindow Then
-					If $g_bDropTrophyEnable = True Then
-						If _Sleep(50) Then Return
-						getMyArmyTroopCount()
-					EndIf
-					ExitLoop
-				EndIf
+				ExitLoop
 			EndIf
-			Local $iStickDelay
-			If $g_aiTimeTrain[0] < 1 Then
-				$iStickDelay = Int($g_aiTimeTrain[0] * 60000)
-			ElseIf $g_aiTimeTrain[0] >= 2 Then
-				$iStickDelay = 60000
-			Else
-				$iStickDelay = 30000
-			EndIf
-			If _Sleep($iStickDelay) Then Return
+;~ 			Local $iStickDelay
+;~ 			If $g_aiTimeTrain[0] < 1 Then
+;~ 				$iStickDelay = Int($g_aiTimeTrain[0] * 60000)
+;~ 			ElseIf $g_aiTimeTrain[0] >= 2 Then
+;~ 				$iStickDelay = 60000
+;~ 			Else
+;~ 				$iStickDelay = 30000
+;~ 			EndIf
+;~ 			If _Sleep($iStickDelay) Then Return
 			getMyArmyCapacity()
 			If _Sleep(50) Then Return ; 10ms improve pause button response
 			getArmyTroopTime()
 			If _Sleep(50) Then Return
 		WEnd
+	Else
+		If $icmbMyQuickTrain = 0 Then
+			DoCheckReVamp(True, True)
+		Else
+			DoMyQuickTrain($icmbMyQuickTrain, $ForcePreTrain)
+		EndIf
+	EndIf
 
-	If $g_iDebugSetlogTrain = 1 Then SetLog("$tempDisableBrewSpell: " & $tempDisableBrewSpell)
+	Else
+		; continue check getMyArmySpellCount() until $g_bFullArmySpells = True
+		If $g_bfullArmy = False Then
+			If gotoArmy() Then
+				If _Sleep(50) Then Return
+				getMyArmyCapacity()
+			EndIf
+		EndIf
+	EndIf
+
+	If $iSamM0dDebug = 1 Then SetLog("After $tempDisableTrain: " & $tempDisableTrain)
+	If $iSamM0dDebug = 1 Then SetLog("Before $tempDisableBrewSpell: " & $tempDisableBrewSpell)
 
 	Local $bCannotBeIgnoreTroopTime = False
 	If $tempDisableBrewSpell = False Then
@@ -194,6 +227,8 @@ Func CustomTrain()
 			EndIf
 		EndIf
 	EndIf
+
+	If $iSamM0dDebug = 1 Then SetLog("After $tempDisableBrewSpell: " & $tempDisableBrewSpell)
 
 	If $ichkEnableMySwitch = 1 Then
 		If gotoArmy() Then
@@ -214,14 +249,39 @@ Func CustomTrain()
 				$iKTime[3] = $g_aiTimeTrain[1]
 			EndIf
 			_ArraySort($iKTime,1)
+
+			Local $bIsAttackType = False
+
 			If $iCurActiveAcc <> -1 Then
 				For $i = 0 To UBound($aSwitchList) - 1
 					If $aSwitchList[$i][4] = $iCurActiveAcc Then
 						$aSwitchList[$i][0] = _DateAdd('n', $iKTime[0], _NowCalc())
+						If $aSwitchList[$i][2] <> 1 Then
+							$bIsAttackType = True
+						EndIf
 						ExitLoop
 					EndIf
 				Next
 			EndIf
+
+			If $ichkEnableContinueStay = 1 Then
+				If $bIsAttackType Then
+					If $iSamM0dDebug Then SetLog("$itxtTrainTimeLeft: " & $itxtTrainTimeLeft)
+					If $iSamM0dDebug Then SetLog("$iKTime[0]: " & $iKTime[0])
+					If $iSamM0dDebug Then SetLog("Before $bAvoidSwitch: " & $bAvoidSwitch)
+
+					$bAvoidSwitch = False
+					If $iKTime[0] <= 0 Then
+						$bAvoidSwitch = True
+					Else
+						If $itxtTrainTimeLeft >= $iKTime[0] Then
+							$bAvoidSwitch = True
+						EndIf
+					EndIf
+					If $iSamM0dDebug Then SetLog("After $bAvoidSwitch: " & $bAvoidSwitch)
+				EndIf
+			EndIf
+
 		EndIf
 	EndIf
 
@@ -264,6 +324,14 @@ Func CustomTrain()
 	If $iSamM0dDebug Then SetLog("$bFullArmyCCSpells: " & $bFullArmyCCSpells)
 	If $iSamM0dDebug Then SetLog("$FullCCTroops: " & $FullCCTroops)
 
+	If $FullCCTroops = False Or $bFullArmyCCSpells = False Then
+		If $ichkEnableMySwitch = 1 Then
+			; If waiting for cc or cc spell, ignore stay to the account, cause you don't know when the cc or spell will be ready.
+			If $iSamM0dDebug Then SetLog("Disable Avoid Switch cause of waiting cc or cc spell enable.")
+			$bAvoidSwitch = False
+		EndIf
+	EndIf
+
 	If $g_bFullArmy = True And $g_bFullArmyHero = True And $g_bFullArmySpells = True And $bFullArmyCCSpells = True And $FullCCTroops = True Then
 		$g_bIsFullArmywithHeroesAndSpells = True
 	Else
@@ -274,7 +342,7 @@ Func CustomTrain()
 
 EndFunc   ;==>CustomTrain
 
-Func DoCheckReVamp($bDoFullTrain = False)
+Func DoCheckReVamp($bDoFullTrain = False, $ForcePreTrain = False)
 
 	If _Sleep(500) Then Return
 	Local $bReVampFlag = False
@@ -332,6 +400,8 @@ Func DoCheckReVamp($bDoFullTrain = False)
 			Local $iCreatedTroopsCapacity = 0
 			Local $bFlagOutOfResource = False
 			If $bDoFullTrain Then
+				$iDonatedUnit = 0
+
 				; delete all exist pretrain troops before full train
 				Local $aMaxCapacity = getTrainArmyCapacity()
 				If $aMaxCapacity = "" then Return
@@ -340,65 +410,66 @@ Func DoCheckReVamp($bDoFullTrain = False)
 				If IsArray($aMaxCapacity) Then
 					If ($aMaxCapacity[0] >= (Int(($aMaxCapacity[1] * $g_iTrainArmyFullTroopPct) / 100)) And $g_iTrainArmyFullTroopPct <> 100) Then
 						SetLog("There are already full troops pre-train, skip train.",$COLOR_INFO)
+						$tempDisableTrain = True
 						Return
 					Else
-						Local $bNeedRemoveAllTroops = False
-						If $g_iTrainArmyFullTroopPct = 100 Then
+						If $ForcePreTrain = False Then
+							Local $bNeedRemoveAllTroops = False
 
-						;If $aMaxCapacity[0] > (($aMaxCapacity[1] * $g_iTrainArmyFullTroopPct) / 100) Then
-							Local $iCount = 0
-							Local $iQueueCap = 0
-							While $bNeedRemoveAllTroops = False
-								$iQueueCap = 0
-								Local $iCount2 = 0
-								While (_ColorCheck(_GetPixelColor(228, 160 + $g_iMidOffsetY , True), Hex(0xFEFEFE, 6), 5) And _ColorCheck(_GetPixelColor(326, 160 + $g_iMidOffsetY , True), Hex(0xFEFEFE, 6), 5)) Or _ColorCheck(_GetPixelColor(498, 184 + $g_iMidOffsetY , True), Hex(0xFFFFFF, 6), 5) Or _ColorCheck(_GetPixelColor(357, 183 + $g_iMidOffsetY , True), Hex(0xFFFFFF, 6), 5)
-									If $g_iDebugSetlogTrain = 1 Then SetLog("Donate or other message blocked screen, postpone action.",$COLOR_RED)
-									If _Sleep(1000) Then Return
-									$iCount2 += 1
-									If $iCount2 >= 30 Then
+							If $g_iTrainArmyFullTroopPct = 100 Then
+								Local $iCount = 0
+								Local $iQueueCap = 0
+								While $bNeedRemoveAllTroops = False
+									$iQueueCap = 0
+									Local $iCount2 = 0
+									While IsQueueBlockByMsg()
+										If _Sleep(1000) Then Return
+										$iCount2 += 1
+										If $iCount2 >= 30 Then
+											ExitLoop
+										EndIf
+									WEnd
+
+									$iCount += 1
+									If $iCount > 3 Then
+										$bNeedRemoveAllTroops = True
 										ExitLoop
 									EndIf
-								WEnd
-
-								$iCount += 1
-								If $iCount > 3 Then
-									$bNeedRemoveAllTroops = True
-									ExitLoop
-								EndIf
-								If _ColorCheck(_GetPixelColor(20,220,True), Hex(0XCFCFC8, 6), 10) = False Then $bNeedRemoveAllTroops = True
-								If $bNeedRemoveAllTroops = False Then
-									Local $aFindResult
-									$aFindResult = getQueueArmyTypeAndSlot()
-									If $g_iDebugSetlogTrain = 1 Then SetLog("============End getQueueArmyTypeAndSlot ============")
-									If $aFindResult <> "" Then
-										For $i = 0 To UBound($aFindResult,$UBOUND_ROWS) - 1
-											If $aFindResult[$i][2] <> 0 Then
-												Assign("OnQ" & $aFindResult[$i][0], Eval("OnQ" & $aFindResult[$i][0]) + $aFindResult[$i][2])
-											Else
-												SetLog("Error detect quantity no. On Troop: " & MyNameOfTroop(Eval("e" & $aFindResult[$i][0]), $aFindResult[$i][2]),$COLOR_RED)
-												ContinueLoop 2
+									If _ColorCheck(_GetPixelColor(20,220,True), Hex(0XCFCFC8, 6), 10) = False Then $bNeedRemoveAllTroops = True
+									If $bNeedRemoveAllTroops = False Then
+										Local $aFindResult
+										$aFindResult = getQueueArmyTypeAndSlot()
+										If $g_iDebugSetlogTrain = 1 Then SetLog("============End getQueueArmyTypeAndSlot ============")
+										If $aFindResult <> "" Then
+											For $i = 0 To UBound($aFindResult,$UBOUND_ROWS) - 1
+												If $aFindResult[$i][2] <> 0 Then
+													Assign("OnQ" & $aFindResult[$i][0], Eval("OnQ" & $aFindResult[$i][0]) + $aFindResult[$i][2])
+												Else
+													SetLog("Error detect quantity no. On Troop: " & MyNameOfTroop(Eval("e" & $aFindResult[$i][0]), $aFindResult[$i][2]),$COLOR_RED)
+													ContinueLoop 2
+												EndIf
+											Next
+										EndIf
+										For $i = 0 To UBound($tempTroops) - 1
+											Local $iOnQQty = Eval("OnQ" & $tempTroops[$i][0])
+											If $iOnQQty > 0 Then
+												SetLog(" - No. of On Queue " & MyNameOfTroop(Eval("e" & $tempTroops[$i][0]), $iOnQQty) & ": " & $iOnQQty, (Eval("e" & $tempTroops[$i][0]) > 11 ? $COLOR_DARKELIXIR : $COLOR_ELIXIR))
+												$iQueueCap += $tempTroops[$i][2] * $iOnQQty
+												If $iOnQQty > Eval("Add" & $tempTroops[$i][0]) Then
+													$bNeedRemoveAllTroops = True
+													ExitLoop
+												EndIf
 											EndIf
 										Next
+										If $iQueueCap <> ($aMaxCapacity[0] - $g_CurrentCampUtilization) Then ContinueLoop
+										ExitLoop
 									EndIf
-									For $i = 0 To UBound($tempTroops) - 1
-										Local $iOnQQty = Eval("OnQ" & $tempTroops[$i][0])
-										If $iOnQQty > 0 Then
-											SetLog(" - No. of On Queue " & MyNameOfTroop(Eval("e" & $tempTroops[$i][0]), $iOnQQty) & ": " & $iOnQQty, (Eval("e" & $tempTroops[$i][0]) > 11 ? $COLOR_DARKELIXIR : $COLOR_ELIXIR))
-											$iQueueCap += $tempTroops[$i][2] * $iOnQQty
-											If $iOnQQty > Eval("Add" & $tempTroops[$i][0]) Then
-												$bNeedRemoveAllTroops = True
-												ExitLoop
-											EndIf
-										EndIf
-									Next
-									If $iQueueCap <> ($aMaxCapacity[0] - $g_CurrentCampUtilization) Then ContinueLoop
-									ExitLoop
-								EndIf
-								If _Sleep(1000) Then Return
-							WEnd
-						Else
-							$bNeedRemoveAllTroops = True
-						EndIf
+									If _Sleep(1000) Then Return
+								WEnd
+							Else
+								$bNeedRemoveAllTroops = True
+							EndIf
+
 							If $bNeedRemoveAllTroops = True Then
 								;SetLog("There are some old troops remain pre-train, remove all before new train",$COLOR_ACTION)
 								RemoveAllTroopAlreadyTrain()
@@ -418,7 +489,14 @@ Func DoCheckReVamp($bDoFullTrain = False)
 								Next
 							EndIf
 							If _Sleep(1000) Then Return
-						;EndIf
+						Else
+							If $aMaxCapacity[0] <> Int((($aMaxCapacity[1] / 2) * $g_iTrainArmyFullTroopPct) / 100) And $g_iTrainArmyFullTroopPct = 100 Then
+								SetLog("Cannot force pre-train, pre-train will process when first queue finish.", $COLOR_INFO)
+								Return
+							Else
+								SetLog("Enable Force pre-train troops.", $COLOR_INFO)
+							EndIf
+						EndIf
 					EndIf
 				EndIf
 				$iRemainTroopsCapacity = $g_iTotalCampSpace
@@ -502,9 +580,12 @@ Func DoCheckReVamp($bDoFullTrain = False)
 			SetLog("Cannot open train troops tab page.",$COLOR_ERROR)
 		EndIf
 	EndIf
+	If $bDoFullTrain Then
+		$tempDisableTrain = True
+	EndIf
 EndFunc
 
-Func DoMyQuickTrain($MyTrainArmy)
+Func DoMyQuickTrain($MyTrainArmy, $ForcePreTrain = False)
 	If gotoTrainTroops() Then
 		; delete all exist pretrain troops before full train
 		Local $aMaxCapacity = getTrainArmyCapacity()
@@ -512,18 +593,15 @@ Func DoMyQuickTrain($MyTrainArmy)
 		If $aMaxCapacity = "" then Return
 		If $g_iDebugSetlogTrain = 1 Then SetLog("Train Troops Capacity: " & $aMaxCapacity[0] & "/" & $aMaxCapacity[1])
 		If IsArray($aMaxCapacity) Then
-			;If $aMaxCapacity[0] >= ((($aMaxCapacity[1] * $g_iTrainArmyFullTroopPct) / 100) * 2) Then
-			;	SetLog("There are already full troops pre-train, skip train.",$COLOR_INFO)
-			;	Return
-			;Else
-				If $aMaxCapacity[0] > Int((($aMaxCapacity[1] / 2) * $g_iTrainArmyFullTroopPct) / 100) And $g_iTrainArmyFullTroopPct = 100 Then
-					;SetLog("There are some old troops remain pre-train, change to custom train for revamp queue troops.",$COLOR_ACTION)
-					DoCheckReVamp(True)
-					Return
-				Else
+			If $aMaxCapacity[0] > Int((($aMaxCapacity[1] / 2) * $g_iTrainArmyFullTroopPct) / 100) And $g_iTrainArmyFullTroopPct = 100 Then
+				;SetLog("There are some old troops remain pre-train, change to custom train for revamp queue troops.",$COLOR_ACTION)
+				DoCheckReVamp(True)
+				Return
+			Else
+				If $ForcePreTrain = False Then
 					RemoveAllTroopAlreadyTrain()
 				EndIf
-			;EndIf
+			EndIf
 		EndIf
 
 		If _Sleep(200) Then Return
@@ -544,6 +622,11 @@ Func DoMyQuickTrain($MyTrainArmy)
 				HMLClickPR($aButtonTemp, $x, $y)
 				HMLClick($x, $y)
 				SetLog("Train army using quick train army " & $MyTrainArmy & " button.", $COLOR_SUCCESS)
+
+				If $aMaxCapacity[0] = Int((($aMaxCapacity[1] / 2) * $g_iTrainArmyFullTroopPct) / 100) And $g_iTrainArmyFullTroopPct = 100 Then
+					$tempDisableTrain = True
+				EndIf
+
 				If _Sleep(200) Then Return
 			Else
 				SetLog("Failed to locate quick train army " & $MyTrainArmy & " button.", $COLOR_ERROR)
@@ -778,35 +861,31 @@ Func getTrainArmyCapacity()
 	Local $tempCurS = 0
 	Local $tempCurT = 0
 
-	; Verify spell current and total capacity
-	If $g_iTotalSpellValue > 0 Then ; only use this code if the user had input spells to brew ... and assign the spells quantity
-		$iCount = 0 ; reset OCR loop counter
-		While $iCount < 20 ; In case the CC donations recieved msg are blocking, need to keep checking numbers till valid
-			;$sArmyInfo = getArmyCampCap($aArmySpellSize[0], $aArmySpellSize[1]) ; OCR read Spells and total capacity
-			; samm0d
-			$sArmyInfo = getMyOcrTrainArmyOrBrewSpellCap() ; OCR read Spells and total capacity
-			$aGetFactorySize = StringSplit($sArmyInfo, "#", $STR_NOCOUNT) ; split the existen Spells from the total Spell factory capacity
-			If IsArray($aGetFactorySize) Then
-				If UBound($aGetFactorySize) > 1 Then
-					If $aGetFactorySize[0] <> "" And $aGetFactorySize[1] <> "" Then
-						If $tempCurS = Number($aGetFactorySize[0]) And $tempCurT = Number($aGetFactorySize[1]) Then ExitLoop
-						$tempCurS = Number($aGetFactorySize[0])
-						$tempCurT = Number($aGetFactorySize[1])
-					EndIf
+
+	$iCount = 0 ; reset OCR loop counter
+	While $iCount < 20
+		$sArmyInfo = getMyOcrTrainArmyOrBrewSpellCap()
+		$aGetFactorySize = StringSplit($sArmyInfo, "#", $STR_NOCOUNT)
+		If IsArray($aGetFactorySize) Then
+			If UBound($aGetFactorySize) > 1 Then
+				If $aGetFactorySize[0] <> "" And $aGetFactorySize[1] <> "" Then
+					If $tempCurS = Number($aGetFactorySize[0]) And $tempCurT = Number($aGetFactorySize[1]) Then ExitLoop
+					$tempCurS = Number($aGetFactorySize[0])
+					$tempCurT = Number($aGetFactorySize[1])
 				EndIf
 			EndIf
-			$iCount += 1
-			If _Sleep(200) Then Return ""; Wait 200ms
-		WEnd
-
-		If $iCount >= 20 Then
-			If $g_iDebugSetlogTrain = 1 Then Setlog("$sArmyInfo = " & $sArmyInfo, $COLOR_DEBUG)
-			SetLog("Error reading ocr for train troops capacity, please check your setting or contact author.", $COLOR_ERROR)
-			Return ""
-		Else
-			If $g_iDebugSetlogTrain = 1 Then Setlog("$sArmyInfo = " & $sArmyInfo, $COLOR_DEBUG)
-			SetLog("Train Troops: " & $tempCurS & "/" & $tempCurT)
 		EndIf
+		$iCount += 1
+		If _Sleep(200) Then Return ""; Wait 200ms
+	WEnd
+
+	If $iCount >= 20 Then
+		If $g_iDebugSetlogTrain = 1 Then Setlog("$sArmyInfo = " & $sArmyInfo, $COLOR_DEBUG)
+		SetLog("Error reading ocr for train troops capacity, please check your setting or contact author.", $COLOR_ERROR)
+		Return ""
+	Else
+		If $g_iDebugSetlogTrain = 1 Then Setlog("$sArmyInfo = " & $sArmyInfo, $COLOR_DEBUG)
+		SetLog("Train Troops: " & $tempCurS & "/" & $tempCurT)
 	EndIf
 
 	If $g_iTotalCampSpace <> ($tempCurT / 2) Then ; if Total camp size is still not set or value not same as read use forced value
@@ -846,3 +925,20 @@ Func getTrainArmyCapacity()
 
 	Return $aGetFactorySize
 EndFunc   ;==>getTrainArmyCapacity
+
+Func IsQueueBlockByMsg()
+	_CaptureRegion()
+	If (_ColorCheck(_GetPixelColor(228, 160 + $g_iMidOffsetY , $g_bNoCapturePixel), Hex(0xFEFEFE, 6), 5) And _ColorCheck(_GetPixelColor(326, 160 + $g_iMidOffsetY , $g_bNoCapturePixel), Hex(0xFEFEFE, 6), 5)) Or _
+		_ColorCheck(_GetPixelColor(498, 184 + $g_iMidOffsetY , $g_bNoCapturePixel), Hex(0xFFFFFF, 6), 5) Or _
+		_ColorCheck(_GetPixelColor(357, 183 + $g_iMidOffsetY , $g_bNoCapturePixel), Hex(0xFFFFFF, 6), 5) Or _
+		_ColorCheck(_GetPixelColor(538, 185 + $g_iMidOffsetY , $g_bNoCapturePixel), Hex(0xFFFFFF, 6), 5) Or _
+		_ColorCheck(_GetPixelColor(243, 179 + $g_iMidOffsetY , $g_bNoCapturePixel), Hex(0xFF1919, 6), 5) Or _
+		_ColorCheck(_GetPixelColor(244, 180 + $g_iMidOffsetY , $g_bNoCapturePixel), Hex(0xFF1919, 6), 5) Or _
+		_ColorCheck(_GetPixelColor(245, 179 + $g_iMidOffsetY , $g_bNoCapturePixel), Hex(0xFF1919, 6), 5) Or _
+		_ColorCheck(_GetPixelColor(320, 185 + $g_iMidOffsetY , $g_bNoCapturePixel), Hex(0xFFFFFF, 6), 5) Then
+		If $g_iDebugSetlogTrain = 1 Then SetLog("Donate or other message blocked army queue.",$COLOR_RED)
+		Return True
+	EndIf
+	If _Sleep(1000) Then Return
+	Return False
+EndFunc

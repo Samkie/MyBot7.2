@@ -18,6 +18,10 @@ Global $iMultiFingerStyle = 0
 ; Multi Finger (LunaEclipse)
 IniReadS($iMultiFingerStyle, $g_sProfileConfigPath, "MultiFinger", "Select", "1")
 
+; prevent over donate
+IniReadS($ichkEnableLimitDonateUnit, $g_sProfileConfigPath, "PreventOverDonate", "Enable", "0", "Int")
+IniReadS($itxtLimitDonateUnit, $g_sProfileConfigPath, "PreventOverDonate", "LimitValue", "8","Int")
+
 ; Unit Wave Factor
 
 IniReadS($ichkUnitFactor, $g_sProfileConfigPath, "SetSleep", "EnableUnitFactor", "1", "Int")

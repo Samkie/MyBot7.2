@@ -143,12 +143,12 @@ Func DoLoadVillage()
 	While Not _ColorCheck(_GetPixelColor($aButtonVillageLoad[4], $aButtonVillageLoad[5],True), Hex($aButtonVillageLoad[6],6), $aButtonVillageLoad[7])
 		If $iSamM0dDebug Then SetLog("village load button Color: " & _GetPixelColor(160, 380,True))
 		$iCount += 1
-		If $iCount = 20 Then
+		If $iCount = 60 Then
 			SetLog("Cannot load village load button, restart game...", $COLOR_RED)
 			CloseCoC(True)
 			Wait4Main()
 		EndIf
-		If $iCount >= 30 Then
+		If $iCount >= 120 Then
 			Return 0
 		EndIf
 		If _ColorCheck(_GetPixelColor($aButtonGoogleConnectGreen[4], $aButtonGoogleConnectGreen[5],True), Hex($aButtonGoogleConnectGreen[6],6), $aButtonGoogleConnectGreen[7]) Then
@@ -410,12 +410,16 @@ Func DoSwitchAcc()
 			For $i = 0 To UBound($aSwitchList) - 1
 				If $aSwitchList[$i][4] = $iCurActiveAcc Then
 					If $aSwitchList[$i][2] <> 1 Then
-						If $g_bIsFullArmywithHeroesAndSpells Then ;If $g_bIsFullArmywithHeroesAndSpells = True mean just back from attack, then we check train before switch acc.
+						If $g_bIsFullArmywithHeroesAndSpells Or $ichkForcePreTrainB4Switch Then ;If $g_bIsFullArmywithHeroesAndSpells = True mean just back from attack, then we check train before switch acc.
 							SetLog("Check train before switch account...",$COLOR_ACTION)
 							If $ichkCustomTrain = 1 Then
-								CustomTrain()
+								CustomTrain($ichkForcePreTrainB4Switch = 1)
 							Else
 								TrainRevamp()
+							EndIf
+							If $bAvoidSwitch Then
+								SetLog("Avoid switch, troops getting ready or soon.", $COLOR_INFO)
+								Return
 							EndIf
 						EndIf
 					EndIf
@@ -531,6 +535,8 @@ Func DoVillageLoadSucess($iAcc)
 	$bDonateAwayFlag = False
 	$bJustMakeDonate = False
 	$tempDisableBrewSpell = False
+	$tempDisableTrain = False
+	$iDonatedUnit = 0
 	$g_bFullArmy = False
 	$FullCCTroops = False
 	$g_bFullArmyHero = False
@@ -1150,7 +1156,7 @@ Func checkProfileCorrect()
 					EndIf
 				EndIf
 			Else
-				ClickDrag(380, 140 + $g_iMidOffsetY + $iSecondBaseTabHeight, 380, 580 + $g_iMidOffsetY, 1000)
+				ClickDrag(380, 140 + $g_iMidOffsetY + $iSecondBaseTabHeight, 380, 580 + $g_iMidOffsetY, 500)
 			EndIf
 			$iCount += 1
 			If $iCount > 15 Then
@@ -1158,7 +1164,7 @@ Func checkProfileCorrect()
 				ClickP($aAway,1,0)
 				Return False
 			EndIf
-			If _Sleep(1000) Then Return False
+			If _Sleep(100) Then Return False
 		WEnd
 
 		ClickP($aAway,1,0)

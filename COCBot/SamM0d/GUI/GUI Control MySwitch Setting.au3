@@ -38,6 +38,19 @@ Func SaveEnableAcc()
 		IniWrite(@ScriptDir & "\Profiles\MySwitch.ini", "MySwitch", "CheckVillage", 0)
 	EndIf
 
+	If GUICtrlRead($chkEnableContinueStay) = $GUI_CHECKED Then
+		IniWrite(@ScriptDir & "\Profiles\MySwitch.ini", "MySwitch", "EnableContinueStay", 1)
+	Else
+		IniWrite(@ScriptDir & "\Profiles\MySwitch.ini", "MySwitch", "EnableContinueStay", 0)
+	EndIf
+
+	IniWrite(@ScriptDir & "\Profiles\MySwitch.ini", "MySwitch", "TrainTimeLeft", GUICtrlRead($txtTrainTimeLeft))
+
+	If GUICtrlRead($chkForcePreTrainB4Switch) = $GUI_CHECKED Then
+		IniWrite(@ScriptDir & "\Profiles\MySwitch.ini", "MySwitch", "ForcePreTrainB4Switch", 1)
+	Else
+		IniWrite(@ScriptDir & "\Profiles\MySwitch.ini", "MySwitch", "ForcePreTrainB4Switch", 0)
+	EndIf
 
 EndFunc
 
@@ -50,6 +63,10 @@ Func ReadEnableAcc()
 	Next
 	$ichkUseADBLoadVillage = IniRead(@ScriptDir & "\Profiles\MySwitch.ini", "MySwitch", "EnablesPrefSwitch", "0")
 	$ichkProfileImage = IniRead(@ScriptDir & "\Profiles\MySwitch.ini", "MySwitch", "CheckVillage", "0")
+
+	$ichkEnableContinueStay = IniRead(@ScriptDir & "\Profiles\MySwitch.ini", "MySwitch", "EnableContinueStay", "0")
+	$itxtTrainTimeLeft = IniRead(@ScriptDir & "\Profiles\MySwitch.ini", "MySwitch", "TrainTimeLeft", "5")
+	$ichkForcePreTrainB4Switch = IniRead(@ScriptDir & "\Profiles\MySwitch.ini", "MySwitch", "ForcePreTrainB4Switch", "0")
 EndFunc
 
 Func ApplyEnableAcc()
@@ -76,6 +93,20 @@ Func ApplyEnableAcc()
 		GUICtrlSetState($chkProfileImage, $GUI_UNCHECKED)
 	EndIf
 
+	If $ichkEnableContinueStay = 1 Then
+		GUICtrlSetState($chkEnableContinueStay, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkEnableContinueStay, $GUI_UNCHECKED)
+	EndIf
+
+	GUICtrlSetData($txtTrainTimeLeft, $itxtTrainTimeLeft)
+
+	If $ichkForcePreTrainB4Switch = 1 Then
+		GUICtrlSetState($chkForcePreTrainB4Switch, $GUI_CHECKED)
+	Else
+		GUICtrlSetState($chkForcePreTrainB4Switch, $GUI_UNCHECKED)
+	EndIf
+
 	If $iSamM0dDebug Then SetLog("$ichkEnableMySwitch: " & $ichkEnableMySwitch)
 	buildSwitchList()
 	DoCheckSwitchEnable()
@@ -90,3 +121,5 @@ Func setCombolistByText(ByRef $iHandle, $sText)
 		EndIf
 	Next
 EndFunc
+
+

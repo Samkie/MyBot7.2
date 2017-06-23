@@ -283,6 +283,7 @@ Func btnTestTrain()
 ;~ 			SetLog("Profile not match with village.png, profile load failed.", $COLOR_ERROR)
 ;~ 		EndIf
 
+
 	BeginImageTest()
 
 	Local $result
